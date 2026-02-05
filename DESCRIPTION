@@ -19,14 +19,13 @@ BugReports: https://github.com/shikokuchuo/autoedit/issues
 Depends:
     R (>= 4.4)
 Imports:
-    automerge,
+    automerge (>= 0.2.1),
     htmlwidgets,
     shiny
 Suggests:
     autosync,
     testthat (>= 3.0.0)
-Remotes: 
-    automerge=posit-dev/automerge-r,
+Remotes:
     shikokuchuo/autosync
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
