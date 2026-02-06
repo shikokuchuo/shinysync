@@ -9,3 +9,5 @@
 docs
 inst/build/node_modules
 inst/build/package-lock.json
+/doc/
+/Meta/
