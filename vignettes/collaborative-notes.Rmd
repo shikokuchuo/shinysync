@@ -201,6 +201,6 @@ collaborative text editing.
 
 If you need serverless collaboration without the cursor position issues,
 consider using discrete UI components instead of free-form text. For example,
-a collaborative checklist works well because each action (add item, toggle
-checkbox, delete item) is atomic - there's no cursor position to preserve.
-See the "Collaborative Checklist" vignette for details.
+a collaborative kanban board works well because each action (add item, move
+item, toggle, delete) is atomic - there's no cursor position to preserve.
+See the "Collaborative Kanban Board" vignette for details.
