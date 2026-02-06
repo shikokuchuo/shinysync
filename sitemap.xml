@@ -2,6 +2,7 @@
 <url><loc>http://shikokuchuo.net/autoedit/404.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/CLAUDE.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/LICENSE-text.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/articles/collaborative-kanban.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/articles/collaborative-notes.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/articles/index.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/authors.html</loc></url>
@@ -11,6 +12,8 @@
 <url><loc>http://shikokuchuo.net/autoedit/reference/editor-shiny.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/editor.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/index.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/reference/kanban_server.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/reference/kanban_ui.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/textarea_server.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/textarea_ui.html</loc></url>
 </urlset>

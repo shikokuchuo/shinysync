@@ -35,7 +35,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/collaborative-notes.html">Collaborative Meeting Notes App</a></li>
+<li><a class="dropdown-item" href="../articles/collaborative-kanban.html">Collaborative Kanban Board</a></li>
+    <li><a class="dropdown-item" href="../articles/collaborative-notes.html">Collaborative Meeting Notes App</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -68,10 +69,9 @@
     
     
 <p>This vignette demonstrates how to build a collaborative meeting notes
-application using autoedit. We start with the recommended approach using
-<code><a href="../reference/editor.html">editor()</a></code> with a sync server, then show a simpler serverless
-alternative using <code><a href="../reference/textarea_ui.html">textarea_ui()</a></code> for cases where the
-limitations are acceptable.</p>
+application using autoedit’s <code><a href="../reference/editor.html">editor()</a></code> widget with a sync
+server, and explains why simpler approaches using standard textareas are
+not suitable for real-time collaboration.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
@@ -180,249 +180,87 @@ which provides an in-process Automerge sync server:</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="serverless-alternative-with-textarea">Serverless alternative with textarea<a class="anchor" aria-label="anchor" href="#serverless-alternative-with-textarea"></a>
+<h2 id="why-not-use-a-standard-textarea">Why not use a standard textarea?<a class="anchor" aria-label="anchor" href="#why-not-use-a-standard-textarea"></a>
 </h2>
-<p>For simpler use cases, autoedit provides <code><a href="../reference/textarea_ui.html">textarea_ui()</a></code>
-and <code><a href="../reference/textarea_server.html">textarea_server()</a></code> functions that synchronize text
-without requiring an external sync server.</p>
+<p>You might wonder whether a simpler approach using Shiny’s
+<code><a href="https://rdrr.io/pkg/shiny/man/textAreaInput.html" class="external-link">textAreaInput()</a></code> could work for collaborative editing. The
+autoedit package does include <code><a href="../reference/textarea_ui.html">textarea_ui()</a></code> and
+<code><a href="../reference/textarea_server.html">textarea_server()</a></code> functions that synchronize text using
+Automerge without requiring a sync server. However, this approach has a
+fundamental limitation that makes it unsuitable for real-time
+collaboration.</p>
 <div class="section level3">
-<h3 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+<h3 id="the-cursor-position-problem">The cursor position problem<a class="anchor" aria-label="anchor" href="#the-cursor-position-problem"></a>
 </h3>
-<p>The textarea module uses Automerge CRDT (Conflict-free Replicated
-Data Type) to synchronize text across multiple browser sessions. No
-external server is required - synchronization happens in-process via
-Shiny’s reactive system. Concurrent edits from multiple users are merged
-automatically, and you can use different <code>doc_id</code> values to
-create separate collaborative spaces.</p>
-</div>
-<div class="section level3">
-<h3 id="complete-application-code">Complete application code<a class="anchor" aria-label="anchor" href="#complete-application-code"></a>
-</h3>
+<p>HTML <code>&lt;textarea&gt;</code> elements have no API for granular
+text updates. The only way to update a textarea programmatically is to
+replace its entire <code>.value</code> property. This means that when
+another user’s changes arrive, the cursor position is lost.</p>
+<p>You can demonstrate this problem with the following app:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/bslib/" class="external-link">bslib</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Room-specific initial content templates</span></span>
-<span><span class="va">room_templates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  standup <span class="op">=</span> <span class="st">"# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n"</span>,</span>
-<span>  planning <span class="op">=</span> <span class="st">"# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n"</span>,</span>
-<span>  retrospective <span class="op">=</span> <span class="st">"# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n"</span>,</span>
-<span>  brainstorm <span class="op">=</span> <span class="st">"# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h3</a></span><span class="op">(</span><span class="st">"Cursor Reset Demo"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span><span class="st">"1. Click in the middle of the text below"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span><span class="st">"2. Click 'Simulate Remote Edit' - watch your cursor jump"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes"</span>, height <span class="op">=</span> <span class="st">"200px"</span><span class="op">)</span>,</span>
 <span></span>
-<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/bslib/reference/page_fillable.html" class="external-link">page_fillable</a></span><span class="op">(</span></span>
-<span>  padding <span class="op">=</span> <span class="st">"1rem"</span>,</span>
-<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span>class <span class="op">=</span> <span class="st">"d-flex justify-content-between align-items-center mb-3"</span>,</span>
-<span>    <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h2</a></span><span class="op">(</span><span class="st">"Collaborative Meeting Notes"</span>, class <span class="op">=</span> <span class="st">"mb-0"</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadButton.html" class="external-link">downloadButton</a></span><span class="op">(</span><span class="st">"export"</span>, <span class="st">"Export as Quarto"</span>, class <span class="op">=</span> <span class="st">"btn-sm"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card.html" class="external-link">card</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card_body.html" class="external-link">card_header</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rstudio.github.io/bslib/reference/navset.html" class="external-link">navset_pill</a></span><span class="op">(</span></span>
-<span>        id <span class="op">=</span> <span class="st">"room"</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Daily Standup"</span>, value <span class="op">=</span> <span class="st">"standup"</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Sprint Planning"</span>, value <span class="op">=</span> <span class="st">"planning"</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Retrospective"</span>, value <span class="op">=</span> <span class="st">"retrospective"</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Brainstorming"</span>, value <span class="op">=</span> <span class="st">"brainstorm"</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card_body.html" class="external-link">card_body</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'standup'"</span>,</span>
-<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_standup"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your standup notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'planning'"</span>,</span>
-<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_planning"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your planning notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'retrospective'"</span>,</span>
-<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_retrospective"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your retrospective notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'brainstorm'"</span>,</span>
-<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_brainstorm"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your ideas..."</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/actionButton.html" class="external-link">actionButton</a></span><span class="op">(</span><span class="st">"remote_edit"</span>, <span class="st">"Simulate Remote Edit"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">text_standup</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_standup"</span>, doc_id <span class="op">=</span> <span class="st">"standup"</span>,</span>
-<span>                                  initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">standup</span><span class="op">)</span></span>
-<span>  <span class="va">text_planning</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_planning"</span>, doc_id <span class="op">=</span> <span class="st">"planning"</span>,</span>
-<span>                                   initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">planning</span><span class="op">)</span></span>
-<span>  <span class="va">text_retrospective</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_retrospective"</span>, doc_id <span class="op">=</span> <span class="st">"retrospective"</span>,</span>
-<span>                                        initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">retrospective</span><span class="op">)</span></span>
-<span>  <span class="va">text_brainstorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_brainstorm"</span>, doc_id <span class="op">=</span> <span class="st">"brainstorm"</span>,</span>
-<span>                                     initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">brainstorm</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">current_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/reactive.html" class="external-link">reactive</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>,</span>
-<span>      <span class="st">"standup"</span> <span class="op">=</span> <span class="fu">text_standup</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="st">"planning"</span> <span class="op">=</span> <span class="fu">text_planning</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="st">"retrospective"</span> <span class="op">=</span> <span class="fu">text_retrospective</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="st">"brainstorm"</span> <span class="op">=</span> <span class="fu">text_brainstorm</span><span class="op">(</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">export</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadHandler.html" class="external-link">downloadHandler</a></span><span class="op">(</span></span>
-<span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>, <span class="st">"-notes-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">".qmd"</span><span class="op">)</span>,</span>
-<span>    content <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>standup <span class="op">=</span> <span class="st">"Daily Standup"</span>, planning <span class="op">=</span> <span class="st">"Sprint Planning"</span>,</span>
-<span>                  retrospective <span class="op">=</span> <span class="st">"Retrospective"</span>, brainstorm <span class="op">=</span> <span class="st">"Brainstorming"</span><span class="op">)</span></span>
-<span>      <span class="va">front_matter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n"</span>,</span>
-<span>                              <span class="va">titles</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">front_matter</span>, <span class="fu">current_text</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">file</span><span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
+<span>  <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
+<span>    <span class="st">"notes"</span>,</span>
+<span>    doc_id <span class="op">=</span> <span class="st">"cursor-test"</span>,</span>
+<span>    initial_text <span class="op">=</span> <span class="st">"Place your cursor HERE in the middle then click the button."</span></span>
 <span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Directly modify the master doc to simulate another user's edit</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/observeEvent.html" class="external-link">observeEvent</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">remote_edit</span>, <span class="op">{</span></span>
+<span>    <span class="va">master</span> <span class="op">&lt;-</span> <span class="fu">autoedit</span><span class="fu">:::</span><span class="va">.master_docs</span><span class="op">[[</span><span class="st">"cursor-test"</span><span class="op">]</span><span class="op">]</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">master</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">text_obj</span> <span class="op">&lt;-</span> <span class="fu">automerge</span><span class="fu">::</span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_get.html" class="external-link">am_get</a></span><span class="op">(</span><span class="va">master</span><span class="op">$</span><span class="va">doc</span>, <span class="fu">automerge</span><span class="fu">::</span><span class="va"><a href="https://posit-dev.github.io/automerge-r/reference/automerge-constants.html" class="external-link">AM_ROOT</a></span>, <span class="st">"text"</span><span class="op">)</span></span>
+<span>      <span class="va">content</span> <span class="op">&lt;-</span> <span class="fu">automerge</span><span class="fu">::</span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_text_content.html" class="external-link">am_text_content</a></span><span class="op">(</span><span class="va">text_obj</span><span class="op">)</span></span>
+<span>      <span class="co"># Append text to simulate remote edit</span></span>
+<span>      <span class="fu">automerge</span><span class="fu">::</span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_text_splice.html" class="external-link">am_text_splice</a></span><span class="op">(</span><span class="va">text_obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">content</span><span class="op">)</span>, <span class="fl">0L</span>, <span class="st">" [REMOTE EDIT]"</span><span class="op">)</span></span>
+<span>      <span class="fu">automerge</span><span class="fu">::</span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_commit.html" class="external-link">am_commit</a></span><span class="op">(</span><span class="va">master</span><span class="op">$</span><span class="va">doc</span>, <span class="st">"remote edit"</span><span class="op">)</span></span>
+<span>      <span class="va">master</span><span class="op">$</span><span class="va">version</span> <span class="op">&lt;-</span> <span class="va">master</span><span class="op">$</span><span class="va">version</span> <span class="op">+</span> <span class="fl">1L</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
+<p>When you click the button, your cursor jumps to the end of the text.
+In a real collaborative scenario, this would happen every time another
+user makes an edit, making it impossible to type continuously.</p>
 </div>
 <div class="section level3">
-<h3 id="document-ids">Document IDs<a class="anchor" aria-label="anchor" href="#document-ids"></a>
+<h3 id="why-codemirror-works">Why CodeMirror works<a class="anchor" aria-label="anchor" href="#why-codemirror-works"></a>
 </h3>
-<p>Each <code><a href="../reference/textarea_server.html">textarea_server()</a></code> call takes a <code>doc_id</code>
-parameter that identifies the collaborative document. All sessions using
-the same <code>doc_id</code> will synchronize together:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># These will sync together (same doc_id)</span></span>
-<span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"editor1"</span>, doc_id <span class="op">=</span> <span class="st">"shared-doc"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"editor2"</span>, doc_id <span class="op">=</span> <span class="st">"shared-doc"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># This is independent (different doc_id)</span></span>
-<span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"editor3"</span>, doc_id <span class="op">=</span> <span class="st">"private-doc"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="initial-text">Initial text<a class="anchor" aria-label="anchor" href="#initial-text"></a>
-</h3>
-<p>The <code>initial_text</code> parameter sets the starting content for
-a new document. If the document already exists (another session created
-it), this parameter is ignored:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
-<span> <span class="st">"notes"</span>,</span>
-<span> doc_id <span class="op">=</span> <span class="st">"meeting"</span>,</span>
-<span> initial_text <span class="op">=</span> <span class="st">"# Meeting Notes\n\nAttendees:\n- "</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="debouncing">Debouncing<a class="anchor" aria-label="anchor" href="#debouncing"></a>
-</h3>
-<p>To avoid excessive synchronization, text changes are debounced. The
-default is 150ms, but you can adjust it:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Faster sync (more responsive, more overhead)</span></span>
-<span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"fast"</span>, doc_id <span class="op">=</span> <span class="st">"doc"</span>, debounce_ms <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Slower sync (less responsive, less overhead)</span></span>
-<span><span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"slow"</span>, doc_id <span class="op">=</span> <span class="st">"doc"</span>, debounce_ms <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="limitations-of-the-serverless-approach">Limitations of the serverless approach<a class="anchor" aria-label="anchor" href="#limitations-of-the-serverless-approach"></a>
-</h2>
-<p>The serverless textarea module has limitations compared to the sync
-server-based editor:</p>
-<table class="table">
-<thead><tr class="header">
-<th>Feature</th>
-<th><code><a href="../reference/editor.html">editor()</a></code></th>
-<th><code><a href="../reference/textarea_ui.html">textarea_ui()</a></code></th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Cursor preserved on sync</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Syntax highlighting</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Multi-process scaling</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Document persistence</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>External server required</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Setup complexity</td>
-<td>Moderate</td>
-<td>Minimal</td>
-</tr>
-</tbody>
-</table>
-<div class="section level3">
-<h3 id="why-the-cursor-jumps">Why the cursor jumps<a class="anchor" aria-label="anchor" href="#why-the-cursor-jumps"></a>
-</h3>
-<p>The textarea module uses Automerge efficiently at the CRDT layer -
-only deltas (individual character insertions and deletions) are
-synchronized between documents. However, HTML
-<code>&lt;textarea&gt;</code> elements have no API for granular text
-updates. The only way to update a textarea programmatically is to
-replace its entire <code>.value</code> property.</p>
-<p>This means that when another user’s changes arrive:</p>
+<p>The <code><a href="../reference/editor.html">editor()</a></code> widget uses CodeMirror 6 with the
+<code>automerge-codemirror</code> integration. CodeMirror maintains a
+proper document model that can apply operations incrementally. When a
+remote change arrives, CodeMirror:</p>
 <ol style="list-style-type: decimal">
-<li>Automerge efficiently merges just the changed operations</li>
-<li>The merged text is extracted as a full string</li>
-<li>The textarea value is replaced entirely</li>
-<li>The cursor position is lost</li>
+<li>Applies the change at the correct position</li>
+<li>Adjusts cursor and selection positions to account for the
+change</li>
+<li>Preserves your editing context</li>
 </ol>
-<p>For truly smooth concurrent editing with cursor preservation, you
-need an editor with a proper document model that can apply operations
-incrementally - which is exactly what <code><a href="../reference/editor.html">editor()</a></code> with
-CodeMirror provides.</p>
+<p>This is why <code><a href="../reference/editor.html">editor()</a></code> with a sync server is the
+recommended approach for collaborative text editing.</p>
 </div>
 <div class="section level3">
-<h3 id="single-process-limitation">Single process limitation<a class="anchor" aria-label="anchor" href="#single-process-limitation"></a>
+<h3 id="alternatives-for-serverless-collaboration">Alternatives for serverless collaboration<a class="anchor" aria-label="anchor" href="#alternatives-for-serverless-collaboration"></a>
 </h3>
-<p>Synchronization only works within a single R process. If you run
-multiple Shiny processes (e.g., behind a load balancer), sessions on
-different processes won’t sync. For multi-process deployments, use
-<code><a href="../reference/editor.html">editor()</a></code> with a sync server.</p>
-</div>
-<div class="section level3">
-<h3 id="no-persistence">No persistence<a class="anchor" aria-label="anchor" href="#no-persistence"></a>
-</h3>
-<p>Documents are stored in memory and lost when the R process restarts.
-For persistent collaboration, use <code><a href="../reference/editor.html">editor()</a></code> with a sync
-server that supports document storage.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="when-to-use-each-approach">When to use each approach<a class="anchor" aria-label="anchor" href="#when-to-use-each-approach"></a>
-</h2>
-<div class="section level3">
-<h3 id="use-editor-with-a-sync-server-when">Use <code>editor()</code> with a sync server when:<a class="anchor" aria-label="anchor" href="#use-editor-with-a-sync-server-when"></a>
-</h3>
-<ul>
-<li>Multiple users will type simultaneously</li>
-<li>You need syntax highlighting</li>
-<li>You need document persistence</li>
-<li>You’re deploying across multiple processes</li>
-<li>Smooth cursor behavior is important</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="use-textarea_ui-textarea_server-when">Use <code>textarea_ui()</code> / <code>textarea_server()</code>
-when:<a class="anchor" aria-label="anchor" href="#use-textarea_ui-textarea_server-when"></a>
-</h3>
-<ul>
-<li>You want zero external dependencies</li>
-<li>Collaboration is light (turn-taking rather than simultaneous
-typing)</li>
-<li>The occasional cursor jump is acceptable</li>
-<li>You’re building a quick prototype</li>
-</ul>
+<p>If you need serverless collaboration without the cursor position
+issues, consider using discrete UI components instead of free-form text.
+For example, a collaborative kanban board works well because each action
+(add item, move item, toggle, delete) is atomic - there’s no cursor
+position to preserve. See the “Collaborative Kanban Board” vignette for
+details.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

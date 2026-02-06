@@ -37,7 +37,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/collaborative-notes.html">Collaborative Meeting Notes App</a></li>
+<li><a class="dropdown-item" href="articles/collaborative-kanban.html">Collaborative Kanban Board</a></li>
+    <li><a class="dropdown-item" href="articles/collaborative-notes.html">Collaborative Meeting Notes App</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -59,7 +60,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>Real-time collaborative text editing for R and Shiny applications, built on <a href="https://automerge.org/" class="external-link">Automerge</a> CRDT.</p>
+<p>Real-time collaborative editing for R and Shiny applications, built on <a href="https://automerge.org/" class="external-link">Automerge</a> CRDT.</p>
 <p><a href="https://deepwiki.com/shikokuchuo/autoedit" class="external-link"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -68,109 +69,108 @@
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"shikokuchuo/autoedit"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
-<p>autoedit provides two approaches to collaborative editing:</p>
 <table class="table">
 <colgroup>
-<col width="14%">
-<col width="47%">
-<col width="38%">
+<col width="29%">
+<col width="35%">
+<col width="35%">
 </colgroup>
 <thead><tr class="header">
-<th></th>
-<th>Textarea</th>
-<th>Editor</th>
+<th>Component</th>
+<th>Description</th>
+<th>Sync Server</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><strong>Interface</strong></td>
-<td>Standard Shiny textarea</td>
-<td>CodeMirror 6 code editor</td>
+<td><code><a href="reference/editor.html">editor()</a></code></td>
+<td>CodeMirror 6 code editor with cursor-preserving sync</td>
+<td>Required</td>
 </tr>
 <tr class="even">
-<td><strong>Sync</strong></td>
-<td>In-process via Shiny</td>
-<td>WebSocket to external server</td>
+<td><code><a href="reference/kanban_ui.html">kanban_ui()</a></code></td>
+<td>Collaborative kanban board with movable items</td>
+<td>Not required</td>
 </tr>
 <tr class="odd">
-<td><strong>Use case</strong></td>
-<td>Multi-session Shiny apps</td>
-<td>Cross-application collaboration</td>
-</tr>
-<tr class="even">
-<td><strong>Dependencies</strong></td>
-<td>automerge</td>
-<td>automerge, autosync</td>
+<td><code><a href="reference/textarea_ui.html">textarea_ui()</a></code></td>
+<td>Basic synchronized textarea</td>
+<td>Not required</td>
 </tr>
 </tbody>
 </table>
+<p>The <strong>editor</strong> provides the best experience for collaborative text editing, with proper cursor preservation when remote changes arrive.</p>
+<p>The <strong>kanban</strong> module works well without a sync server because its actions (add, toggle, delete, move) are discrete - there’s no cursor position to preserve.</p>
+<p>The <strong>textarea</strong> syncs correctly but has UX limitations (cursor jumps on remote edits), making it suitable only for simple use cases.</p>
 </div>
 <div class="section level2">
-<h2 id="textarea">Textarea<a class="anchor" aria-label="anchor" href="#textarea"></a>
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>A Shiny module that syncs across browser sessions using Shiny’s reactive system. No external server required - the Shiny process manages document state directly.</p>
+<div class="section level3">
+<h3 id="kanban-board-serverless">Kanban Board (serverless)<a class="anchor" aria-label="anchor" href="#kanban-board-serverless"></a>
+</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"editor"</span>, label <span class="op">=</span> <span class="st">"Collaborative notes"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span><span class="fu"><a href="reference/kanban_ui.html">kanban_ui</a></span><span class="op">(</span><span class="st">"board"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">text</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"editor"</span>, initial_text <span class="op">=</span> <span class="st">"Start typing..."</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/kanban_server.html">kanban_server</a></span><span class="op">(</span><span class="st">"board"</span>, initial_items <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    todo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Design feature"</span>, <span class="st">"Write tests"</span><span class="op">)</span>,</span>
+<span>    in_progress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Code review"</span><span class="op">)</span>,</span>
+<span>    done <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Deploy v1.0"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
-<p>Open in multiple browser windows for real-time collaboration.</p>
 </div>
-<div class="section level2">
-<h2 id="editor">Editor<a class="anchor" aria-label="anchor" href="#editor"></a>
-</h2>
-<p>A <a href="https://codemirror.net/" class="external-link">CodeMirror 6</a> code editor widget that syncs via WebSocket to any automerge-repo compatible server. Suitable for collaboration across different applications or persistent documents.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Connect to a sync server</span></span>
-<span><span class="fu"><a href="reference/editor.html">editor</a></span><span class="op">(</span><span class="st">"ws://localhost:3030"</span>, <span class="st">"document-id"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Or use the public Automerge sync server</span></span>
-<span><span class="fu"><a href="reference/editor.html">editor</a></span><span class="op">(</span><span class="st">"wss://sync.automerge.org"</span>, <span class="st">"your-document-id"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="shiny-example">Shiny Example<a class="anchor" aria-label="anchor" href="#shiny-example"></a>
+<h3 id="editor-with-sync-server">Editor (with sync server)<a class="anchor" aria-label="anchor" href="#editor-with-sync-server"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/posit-dev/automerge-r" class="external-link">automerge</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/posit-dev/automerge-r" class="external-link">automerge</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/amsync_server.html" class="external-link">amsync_server</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">server</span><span class="op">$</span><span class="fu">start</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/amsync_server.html" class="external-link">amsync_server</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">sync_server</span><span class="op">$</span><span class="fu">start</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">doc_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/create_document.html" class="external-link">create_document</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span></span>
-<span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/get_document.html" class="external-link">get_document</a></span><span class="op">(</span><span class="va">server</span>, <span class="va">doc_id</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_put.html" class="external-link">am_put</a></span><span class="op">(</span><span class="va">doc</span>, <span class="va">AM_ROOT</span>, <span class="st">"text"</span>, <span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_text.html" class="external-link">am_text</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">doc_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/create_document.html" class="external-link">create_document</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">)</span></span>
+<span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/get_document.html" class="external-link">get_document</a></span><span class="op">(</span><span class="va">sync_server</span>, <span class="va">doc_id</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_put.html" class="external-link">am_put</a></span><span class="op">(</span><span class="va">doc</span>, <span class="va">AM_ROOT</span>, <span class="st">"text"</span>, <span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_text.html" class="external-link">am_text</a></span><span class="op">(</span><span class="st">"Start typing..."</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_commit.html" class="external-link">am_commit</a></span><span class="op">(</span><span class="va">doc</span>, <span class="st">"init"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span><span class="fu"><a href="reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"editor"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">shiny_server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="reference/editor.html">editor</a></span><span class="op">(</span><span class="va">server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_id</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_id</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/onStop.html" class="external-link">onStop</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">server</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">shiny_server</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/onStop.html" class="external-link">onStop</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">sync_server</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
+<p>Open either app in multiple browser windows for real-time collaboration.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h2>
+<ul>
+<li>
+<strong>Collaborative Meeting Notes App</strong> - Using the CodeMirror editor with a sync server</li>
+<li>
+<strong>Collaborative Kanban Board</strong> - Serverless task management</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
 </h2>
 <p>To rebuild the bundled JavaScript widget:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="related-packages">Related Packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>

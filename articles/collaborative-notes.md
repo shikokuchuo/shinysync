@@ -1,11 +1,10 @@
 # Collaborative Meeting Notes App
 
 This vignette demonstrates how to build a collaborative meeting notes
-application using autoedit. We start with the recommended approach using
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with a
-sync server, then show a simpler serverless alternative using
-[`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)
-for cases where the limitations are acceptable.
+application using autoedit’s
+[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) widget
+with a sync server, and explains why simpler approaches using standard
+textareas are not suitable for real-time collaboration.
 
 ## Setup
 
@@ -117,213 +116,88 @@ shinyApp(ui, server)
 
 ------------------------------------------------------------------------
 
-## Serverless alternative with textarea
+## Why not use a standard textarea?
 
-For simpler use cases, autoedit provides
+You might wonder whether a simpler approach using Shiny’s
+[`textAreaInput()`](https://rdrr.io/pkg/shiny/man/textAreaInput.html)
+could work for collaborative editing. The autoedit package does include
 [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)
 and
 [`textarea_server()`](http://shikokuchuo.net/autoedit/reference/textarea_server.md)
-functions that synchronize text without requiring an external sync
-server.
+functions that synchronize text using Automerge without requiring a sync
+server. However, this approach has a fundamental limitation that makes
+it unsuitable for real-time collaboration.
 
-### How it works
+### The cursor position problem
 
-The textarea module uses Automerge CRDT (Conflict-free Replicated Data
-Type) to synchronize text across multiple browser sessions. No external
-server is required - synchronization happens in-process via Shiny’s
-reactive system. Concurrent edits from multiple users are merged
-automatically, and you can use different `doc_id` values to create
-separate collaborative spaces.
+HTML `<textarea>` elements have no API for granular text updates. The
+only way to update a textarea programmatically is to replace its entire
+`.value` property. This means that when another user’s changes arrive,
+the cursor position is lost.
 
-### Complete application code
+You can demonstrate this problem with the following app:
 
 ``` r
 library(shiny)
-library(bslib)
 library(autoedit)
 
-# Room-specific initial content templates
-room_templates <- list(
-  standup = "# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n",
-  planning = "# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n",
-  retrospective = "# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n",
-  brainstorm = "# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"
-)
+ui <- fluidPage(
+  h3("Cursor Reset Demo"),
+  p("1. Click in the middle of the text below"),
+  p("2. Click 'Simulate Remote Edit' - watch your cursor jump"),
+  textarea_ui("notes", height = "200px"),
 
-ui <- page_fillable(
-  padding = "1rem",
-  div(class = "d-flex justify-content-between align-items-center mb-3",
-    h2("Collaborative Meeting Notes", class = "mb-0"),
-    downloadButton("export", "Export as Quarto", class = "btn-sm")
-  ),
-  card(
-    card_header(
-      navset_pill(
-        id = "room",
-        nav_panel("Daily Standup", value = "standup"),
-        nav_panel("Sprint Planning", value = "planning"),
-        nav_panel("Retrospective", value = "retrospective"),
-        nav_panel("Brainstorming", value = "brainstorm")
-      )
-    ),
-    card_body(
-      conditionalPanel("input.room === 'standup'",
-        textarea_ui("notes_standup", label = NULL, width = "100%", height = "500px",
-                    placeholder = "Start typing your standup notes...")),
-      conditionalPanel("input.room === 'planning'",
-        textarea_ui("notes_planning", label = NULL, width = "100%", height = "500px",
-                    placeholder = "Start typing your planning notes...")),
-      conditionalPanel("input.room === 'retrospective'",
-        textarea_ui("notes_retrospective", label = NULL, width = "100%", height = "500px",
-                    placeholder = "Start typing your retrospective notes...")),
-      conditionalPanel("input.room === 'brainstorm'",
-        textarea_ui("notes_brainstorm", label = NULL, width = "100%", height = "500px",
-                    placeholder = "Start typing your ideas..."))
-    )
-  )
+  actionButton("remote_edit", "Simulate Remote Edit")
 )
 
 server <- function(input, output, session) {
-  text_standup <- textarea_server("notes_standup", doc_id = "standup",
-                                  initial_text = room_templates$standup)
-  text_planning <- textarea_server("notes_planning", doc_id = "planning",
-                                   initial_text = room_templates$planning)
-  text_retrospective <- textarea_server("notes_retrospective", doc_id = "retrospective",
-                                        initial_text = room_templates$retrospective)
-  text_brainstorm <- textarea_server("notes_brainstorm", doc_id = "brainstorm",
-                                     initial_text = room_templates$brainstorm)
-
-  current_text <- reactive({
-    switch(input$room,
-      "standup" = text_standup(),
-      "planning" = text_planning(),
-      "retrospective" = text_retrospective(),
-      "brainstorm" = text_brainstorm()
-    )
-  })
-
-  output$export <- downloadHandler(
-    filename = function() paste0(input$room, "-notes-", Sys.Date(), ".qmd"),
-    content = function(file) {
-      titles <- c(standup = "Daily Standup", planning = "Sprint Planning",
-                  retrospective = "Retrospective", brainstorm = "Brainstorming")
-      front_matter <- sprintf("---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n",
-                              titles[input$room], Sys.Date())
-      writeLines(paste0(front_matter, current_text()), file)
-    }
+  textarea_server(
+    "notes",
+    doc_id = "cursor-test",
+    initial_text = "Place your cursor HERE in the middle then click the button."
   )
+
+  # Directly modify the master doc to simulate another user's edit
+  observeEvent(input$remote_edit, {
+    master <- autoedit:::.master_docs[["cursor-test"]]
+    if (!is.null(master)) {
+      text_obj <- automerge::am_get(master$doc, automerge::AM_ROOT, "text")
+      content <- automerge::am_text_content(text_obj)
+      # Append text to simulate remote edit
+      automerge::am_text_splice(text_obj, nchar(content), 0L, " [REMOTE EDIT]")
+      automerge::am_commit(master$doc, "remote edit")
+      master$version <- master$version + 1L
+    }
+  })
 }
 
 shinyApp(ui, server)
 ```
 
-### Document IDs
+When you click the button, your cursor jumps to the end of the text. In
+a real collaborative scenario, this would happen every time another user
+makes an edit, making it impossible to type continuously.
 
-Each
-[`textarea_server()`](http://shikokuchuo.net/autoedit/reference/textarea_server.md)
-call takes a `doc_id` parameter that identifies the collaborative
-document. All sessions using the same `doc_id` will synchronize
-together:
+### Why CodeMirror works
 
-``` r
-# These will sync together (same doc_id)
-textarea_server("editor1", doc_id = "shared-doc")
-textarea_server("editor2", doc_id = "shared-doc")
+The [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)
+widget uses CodeMirror 6 with the `automerge-codemirror` integration.
+CodeMirror maintains a proper document model that can apply operations
+incrementally. When a remote change arrives, CodeMirror:
 
-# This is independent (different doc_id)
-textarea_server("editor3", doc_id = "private-doc")
-```
+1.  Applies the change at the correct position
+2.  Adjusts cursor and selection positions to account for the change
+3.  Preserves your editing context
 
-### Initial text
-
-The `initial_text` parameter sets the starting content for a new
-document. If the document already exists (another session created it),
-this parameter is ignored:
-
-``` r
-textarea_server(
- "notes",
- doc_id = "meeting",
- initial_text = "# Meeting Notes\n\nAttendees:\n- "
-)
-```
-
-### Debouncing
-
-To avoid excessive synchronization, text changes are debounced. The
-default is 150ms, but you can adjust it:
-
-``` r
-# Faster sync (more responsive, more overhead)
-textarea_server("fast", doc_id = "doc", debounce_ms = 50)
-
-# Slower sync (less responsive, less overhead)
-textarea_server("slow", doc_id = "doc", debounce_ms = 500)
-```
-
-## Limitations of the serverless approach
-
-The serverless textarea module has limitations compared to the sync
-server-based editor:
-
-| Feature                  | [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) | [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md) |
-|--------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| Cursor preserved on sync | Yes                                                               | No                                                                          |
-| Syntax highlighting      | Yes                                                               | No                                                                          |
-| Multi-process scaling    | Yes                                                               | No                                                                          |
-| Document persistence     | Yes                                                               | No                                                                          |
-| External server required | Yes                                                               | No                                                                          |
-| Setup complexity         | Moderate                                                          | Minimal                                                                     |
-
-### Why the cursor jumps
-
-The textarea module uses Automerge efficiently at the CRDT layer - only
-deltas (individual character insertions and deletions) are synchronized
-between documents. However, HTML `<textarea>` elements have no API for
-granular text updates. The only way to update a textarea
-programmatically is to replace its entire `.value` property.
-
-This means that when another user’s changes arrive:
-
-1.  Automerge efficiently merges just the changed operations
-2.  The merged text is extracted as a full string
-3.  The textarea value is replaced entirely
-4.  The cursor position is lost
-
-For truly smooth concurrent editing with cursor preservation, you need
-an editor with a proper document model that can apply operations
-incrementally - which is exactly what
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with
-CodeMirror provides.
-
-### Single process limitation
-
-Synchronization only works within a single R process. If you run
-multiple Shiny processes (e.g., behind a load balancer), sessions on
-different processes won’t sync. For multi-process deployments, use
+This is why
 [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with a
-sync server.
+sync server is the recommended approach for collaborative text editing.
 
-### No persistence
+### Alternatives for serverless collaboration
 
-Documents are stored in memory and lost when the R process restarts. For
-persistent collaboration, use
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with a
-sync server that supports document storage.
-
-## When to use each approach
-
-### Use `editor()` with a sync server when:
-
-- Multiple users will type simultaneously
-- You need syntax highlighting
-- You need document persistence
-- You’re deploying across multiple processes
-- Smooth cursor behavior is important
-
-### Use `textarea_ui()` / `textarea_server()` when:
-
-- You want zero external dependencies
-- Collaboration is light (turn-taking rather than simultaneous typing)
-- The occasional cursor jump is acceptable
-- You’re building a quick prototype
+If you need serverless collaboration without the cursor position issues,
+consider using discrete UI components instead of free-form text. For
+example, a collaborative kanban board works well because each action
+(add item, move item, toggle, delete) is atomic - there’s no cursor
+position to preserve. See the “Collaborative Kanban Board” vignette for
+details.

@@ -1,7 +1,7 @@
 # autoedit
 
-Real-time collaborative text editing for R and Shiny applications, built
-on [Automerge](https://automerge.org/) CRDT.
+Real-time collaborative editing for R and Shiny applications, built on
+[Automerge](https://automerge.org/) CRDT.
 
 [![Ask
 DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
@@ -12,81 +12,78 @@ DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/auto
 pak::pak("shikokuchuo/autoedit")
 ```
 
-## Overview
+## Features
 
-autoedit provides two approaches to collaborative editing:
+| Component                                                                   | Description                                          | Sync Server  |
+|-----------------------------------------------------------------------------|------------------------------------------------------|--------------|
+| [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)           | CodeMirror 6 code editor with cursor-preserving sync | Required     |
+| [`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md)     | Collaborative kanban board with movable items        | Not required |
+| [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md) | Basic synchronized textarea                          | Not required |
 
-|                  | Textarea                 | Editor                          |
-|------------------|--------------------------|---------------------------------|
-| **Interface**    | Standard Shiny textarea  | CodeMirror 6 code editor        |
-| **Sync**         | In-process via Shiny     | WebSocket to external server    |
-| **Use case**     | Multi-session Shiny apps | Cross-application collaboration |
-| **Dependencies** | automerge                | automerge, autosync             |
+The **editor** provides the best experience for collaborative text
+editing, with proper cursor preservation when remote changes arrive.
 
-## Textarea
+The **kanban** module works well without a sync server because its
+actions (add, toggle, delete, move) are discrete - there’s no cursor
+position to preserve.
 
-A Shiny module that syncs across browser sessions using Shiny’s reactive
-system. No external server required - the Shiny process manages document
-state directly.
+The **textarea** syncs correctly but has UX limitations (cursor jumps on
+remote edits), making it suitable only for simple use cases.
+
+## Quick Start
+
+### Kanban Board (serverless)
 
 ``` r
 library(shiny)
 library(autoedit)
 
-ui <- fluidPage(
-  textarea_ui("editor", label = "Collaborative notes")
-)
+ui <- fluidPage(kanban_ui("board"))
 
 server <- function(input, output, session) {
-  text <- textarea_server("editor", initial_text = "Start typing...")
+  kanban_server("board", initial_items = list(
+    todo = c("Design feature", "Write tests"),
+    in_progress = c("Code review"),
+    done = c("Deploy v1.0")
+  ))
 }
 
 shinyApp(ui, server)
 ```
 
-Open in multiple browser windows for real-time collaboration.
-
-## Editor
-
-A [CodeMirror 6](https://codemirror.net/) code editor widget that syncs
-via WebSocket to any automerge-repo compatible server. Suitable for
-collaboration across different applications or persistent documents.
-
-``` r
-library(autoedit)
-
-# Connect to a sync server
-editor("ws://localhost:3030", "document-id")
-
-# Or use the public Automerge sync server
-editor("wss://sync.automerge.org", "your-document-id")
-```
-
-### Shiny Example
+### Editor (with sync server)
 
 ``` r
 library(shiny)
-library(automerge)
-library(autosync)
 library(autoedit)
+library(autosync)
+library(automerge)
 
-server <- amsync_server()
-server$start()
+sync_server <- amsync_server()
+sync_server$start()
 
-doc_id <- create_document(server)
-doc <- get_document(server, doc_id)
-am_put(doc, AM_ROOT, "text", am_text(""))
+doc_id <- create_document(sync_server)
+doc <- get_document(sync_server, doc_id)
+am_put(doc, AM_ROOT, "text", am_text("Start typing..."))
 am_commit(doc, "init")
 
 ui <- fluidPage(editor_output("editor"))
 
-shiny_server <- function(input, output, session) {
-  output$editor <- editor_render(editor(server$url, doc_id))
+server <- function(input, output, session) {
+  output$editor <- editor_render(editor(sync_server$url, doc_id))
 }
 
-onStop(function() server$close())
-shinyApp(ui, shiny_server)
+onStop(function() sync_server$close())
+shinyApp(ui, server)
 ```
+
+Open either app in multiple browser windows for real-time collaboration.
+
+## Vignettes
+
+- **Collaborative Meeting Notes App** - Using the CodeMirror editor with
+  a sync server
+- **Collaborative Kanban Board** - Serverless task management
 
 ## Development
 
