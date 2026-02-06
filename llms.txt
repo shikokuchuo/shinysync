@@ -116,3 +116,9 @@ npm run build
 - [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)
   : Collaborative textarea UI
 
+# Articles
+
+### All vignettes
+
+- [Collaborative Meeting Notes
+  App](http://shikokuchuo.net/autoedit/articles/collaborative-notes.md):
