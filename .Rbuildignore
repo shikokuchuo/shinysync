@@ -15,4 +15,4 @@
 ^doc$
 ^Meta$
 ^inst/build$
-^\.amrg$
+^\.automerge$

@@ -83,7 +83,7 @@ shiny_server <- function(input, output, session) {
   output$editor <- editor_render(editor(server$url, doc_id))
 }
 
-onStop(function() server$stop())
+onStop(function() server$close())
 shinyApp(ui, shiny_server)
 ```
 
