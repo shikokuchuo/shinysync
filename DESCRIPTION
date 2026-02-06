@@ -24,6 +24,7 @@ Imports:
     shiny
 Suggests:
     autosync,
+    bslib,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

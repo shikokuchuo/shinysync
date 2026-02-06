@@ -4,10 +4,11 @@
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
 <!-- badges: end -->
 
 Real-time collaborative text editing for R and Shiny applications, built on [Automerge](https://automerge.org/) CRDT.
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
 
 ## Installation
 
@@ -69,7 +70,7 @@ library(automerge)
 library(autosync)
 library(autoedit)
 
-server <- amsync_server(port = 3030, host = "127.0.0.1")
+server <- amsync_server()
 server$start()
 
 doc_id <- create_document(server)
