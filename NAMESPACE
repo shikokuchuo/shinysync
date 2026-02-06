@@ -3,5 +3,7 @@
 export(editor)
 export(editor_output)
 export(editor_render)
+export(kanban_server)
+export(kanban_ui)
 export(textarea_server)
 export(textarea_ui)
