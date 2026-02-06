@@ -99,19 +99,10 @@ sessions.</p>
 which provides an in-process Automerge sync server:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/bslib/" class="external-link">bslib</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/posit-dev/automerge-r" class="external-link">automerge</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Available meeting rooms (names = display labels, values = IDs)</span></span>
-<span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Daily Standup"</span> <span class="op">=</span> <span class="st">"standup"</span>,</span>
-<span>  <span class="st">"Sprint Planning"</span> <span class="op">=</span> <span class="st">"planning"</span>,</span>
-<span>  <span class="st">"Retrospective"</span> <span class="op">=</span> <span class="st">"retrospective"</span>,</span>
-<span>  <span class="st">"Brainstorming"</span> <span class="op">=</span> <span class="st">"brainstorm"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">room_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rooms</span><span class="op">)</span>, <span class="va">rooms</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Room-specific initial content templates</span></span>
 <span><span class="va">room_templates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -127,116 +118,56 @@ which provides an in-process Automerge sync server:</p>
 <span></span>
 <span><span class="co"># Create a document for each room with initial content</span></span>
 <span><span class="va">doc_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">room</span> <span class="kw">in</span> <span class="va">rooms</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">room</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">room_templates</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">doc_ids</span><span class="op">[[</span><span class="va">room</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/create_document.html" class="external-link">create_document</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">)</span></span>
 <span>  <span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/get_document.html" class="external-link">get_document</a></span><span class="op">(</span><span class="va">sync_server</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="va">room</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_put.html" class="external-link">am_put</a></span><span class="op">(</span><span class="va">doc</span>, <span class="va">AM_ROOT</span>, <span class="st">"text"</span>, <span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_text.html" class="external-link">am_text</a></span><span class="op">(</span><span class="va">room_templates</span><span class="op">[[</span><span class="va">room</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://posit-dev.github.io/automerge-r/reference/am_commit.html" class="external-link">am_commit</a></span><span class="op">(</span><span class="va">doc</span>, <span class="st">"init"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span></span>
-<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span></span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">style</span><span class="op">(</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/HTML.html" class="external-link">HTML</a></span><span class="op">(</span><span class="st">"</span></span>
-<span><span class="st">      .notes-container {</span></span>
-<span><span class="st">        border: 1px solid #ddd;</span></span>
-<span><span class="st">        border-radius: 4px;</span></span>
-<span><span class="st">        padding: 0;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      .room-header {</span></span>
-<span><span class="st">        background: #f8f9fa;</span></span>
-<span><span class="st">        padding: 10px 15px;</span></span>
-<span><span class="st">        border-bottom: 1px solid #ddd;</span></span>
-<span><span class="st">        border-radius: 4px 4px 0 0;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      .sync-indicator {</span></span>
-<span><span class="st">        display: inline-block;</span></span>
-<span><span class="st">        width: 8px;</span></span>
-<span><span class="st">        height: 8px;</span></span>
-<span><span class="st">        border-radius: 50%;</span></span>
-<span><span class="st">        background: #28a745;</span></span>
-<span><span class="st">        margin-right: 8px;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">    "</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/bslib/reference/page_fillable.html" class="external-link">page_fillable</a></span><span class="op">(</span></span>
+<span>  padding <span class="op">=</span> <span class="st">"1rem"</span>,</span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span>class <span class="op">=</span> <span class="st">"d-flex justify-content-between align-items-center mb-3"</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h2</a></span><span class="op">(</span><span class="st">"Collaborative Meeting Notes"</span>, class <span class="op">=</span> <span class="st">"mb-0"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadButton.html" class="external-link">downloadButton</a></span><span class="op">(</span><span class="st">"export"</span>, <span class="st">"Export as Quarto"</span>, class <span class="op">=</span> <span class="st">"btn-sm"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/titlePanel.html" class="external-link">titlePanel</a></span><span class="op">(</span><span class="st">"Collaborative Meeting Notes"</span><span class="op">)</span>,</span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidRow</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/column.html" class="external-link">column</a></span><span class="op">(</span></span>
-<span>      width <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/wellPanel.html" class="external-link">wellPanel</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h4</a></span><span class="op">(</span><span class="st">"Select Room"</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/radioButtons.html" class="external-link">radioButtons</a></span><span class="op">(</span></span>
-<span>          <span class="st">"room"</span>,</span>
-<span>          label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>          choices <span class="op">=</span> <span class="va">rooms</span>,</span>
-<span>          selected <span class="op">=</span> <span class="st">"standup"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">hr</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"text-muted"</span>,</span>
-<span>          <span class="va">tags</span><span class="op">$</span><span class="fu">span</span><span class="op">(</span>class <span class="op">=</span> <span class="st">"sync-indicator"</span><span class="op">)</span>,</span>
-<span>          <span class="st">"Sync active"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"text-muted small"</span>,</span>
-<span>          <span class="st">"Open multiple browser windows to collaborate in real-time."</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">hr</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadButton.html" class="external-link">downloadButton</a></span><span class="op">(</span><span class="st">"export"</span>, <span class="st">"Export as Quarto"</span>, class <span class="op">=</span> <span class="st">"btn-sm"</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/column.html" class="external-link">column</a></span><span class="op">(</span></span>
-<span>      width <span class="op">=</span> <span class="fl">9</span>,</span>
-<span>      <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span></span>
-<span>        class <span class="op">=</span> <span class="st">"notes-container"</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"room-header"</span>,</span>
-<span>          <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h5</a></span><span class="op">(</span></span>
-<span>            style <span class="op">=</span> <span class="st">"margin: 0;"</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/textOutput.html" class="external-link">textOutput</a></span><span class="op">(</span><span class="st">"room_title"</span>, inline <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="co"># Dynamically render the active editor</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/htmlOutput.html" class="external-link">uiOutput</a></span><span class="op">(</span><span class="st">"active_editor"</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/bslib/reference/navset.html" class="external-link">navset_card_pill</a></span><span class="op">(</span></span>
+<span>    id <span class="op">=</span> <span class="st">"room"</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Daily Standup"</span>, value <span class="op">=</span> <span class="st">"standup"</span>, <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/htmlOutput.html" class="external-link">uiOutput</a></span><span class="op">(</span><span class="st">"editor_standup"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Sprint Planning"</span>, value <span class="op">=</span> <span class="st">"planning"</span>, <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/htmlOutput.html" class="external-link">uiOutput</a></span><span class="op">(</span><span class="st">"editor_planning"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Retrospective"</span>, value <span class="op">=</span> <span class="st">"retrospective"</span>, <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/htmlOutput.html" class="external-link">uiOutput</a></span><span class="op">(</span><span class="st">"editor_retrospective"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Brainstorming"</span>, value <span class="op">=</span> <span class="st">"brainstorm"</span>, <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/htmlOutput.html" class="external-link">uiOutput</a></span><span class="op">(</span><span class="st">"editor_brainstorm"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Dynamically render only the active room's editor</span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">active_editor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderUI.html" class="external-link">renderUI</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="../reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"editor"</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor_standup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderUI.html" class="external-link">renderUI</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"ed_standup"</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor_planning</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderUI.html" class="external-link">renderUI</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"ed_planning"</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor_retrospective</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderUI.html" class="external-link">renderUI</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"ed_retrospective"</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor_brainstorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderUI.html" class="external-link">renderUI</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor-shiny.html">editor_output</a></span><span class="op">(</span><span class="st">"ed_brainstorm"</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">ed_standup</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="st">"standup"</span><span class="op">]</span><span class="op">]</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">ed_planning</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="st">"planning"</span><span class="op">]</span><span class="op">]</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">ed_retrospective</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="st">"retrospective"</span><span class="op">]</span><span class="op">]</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">ed_brainstorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="fu"><a href="../reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="st">"brainstorm"</span><span class="op">]</span><span class="op">]</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="va">current_content</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/reactive.html" class="external-link">reactive</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>,</span>
+<span>      <span class="st">"standup"</span> <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">ed_standup_content</span>,</span>
+<span>      <span class="st">"planning"</span> <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">ed_planning_content</span>,</span>
+<span>      <span class="st">"retrospective"</span> <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">ed_retrospective_content</span>,</span>
+<span>      <span class="st">"brainstorm"</span> <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">ed_brainstorm_content</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">editor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editor-shiny.html">editor_render</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="../reference/editor.html">editor</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">$</span><span class="va">url</span>, <span class="va">doc_ids</span><span class="op">[[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span><span class="op">]</span>, height <span class="op">=</span> <span class="st">"500px"</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Room title</span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">room_title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderPrint.html" class="external-link">renderText</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="va">room_labels</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Get current room's text for export</span></span>
-<span>  <span class="va">current_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/reactive.html" class="external-link">reactive</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="va">input</span><span class="op">$</span><span class="va">editor_content</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Export handler</span></span>
 <span>  <span class="va">output</span><span class="op">$</span><span class="va">export</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadHandler.html" class="external-link">downloadHandler</a></span><span class="op">(</span></span>
-<span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>, <span class="st">"-notes-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">".qmd"</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
+<span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>, <span class="st">"-notes-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">".qmd"</span><span class="op">)</span>,</span>
 <span>    content <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">front_matter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
-<span>        <span class="st">"---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n"</span>,</span>
-<span>        <span class="va">room_labels</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">front_matter</span>, <span class="fu">current_text</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">file</span><span class="op">)</span></span>
+<span>      <span class="va">titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>standup <span class="op">=</span> <span class="st">"Daily Standup"</span>, planning <span class="op">=</span> <span class="st">"Sprint Planning"</span>,</span>
+<span>                  retrospective <span class="op">=</span> <span class="st">"Retrospective"</span>, brainstorm <span class="op">=</span> <span class="st">"Brainstorming"</span><span class="op">)</span></span>
+<span>      <span class="va">front_matter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n"</span>,</span>
+<span>                              <span class="va">titles</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">front_matter</span>, <span class="fu">current_content</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">file</span><span class="op">)</span></span>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -269,190 +200,76 @@ create separate collaborative spaces.</p>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/bslib/" class="external-link">bslib</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Available meeting rooms (names = display labels, values = IDs)</span></span>
-<span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Daily Standup"</span> <span class="op">=</span> <span class="st">"standup"</span>,</span>
-<span>  <span class="st">"Sprint Planning"</span> <span class="op">=</span> <span class="st">"planning"</span>,</span>
-<span>  <span class="st">"Retrospective"</span> <span class="op">=</span> <span class="st">"retrospective"</span>,</span>
-<span>  <span class="st">"Brainstorming"</span> <span class="op">=</span> <span class="st">"brainstorm"</span></span>
+<span><span class="co"># Room-specific initial content templates</span></span>
+<span><span class="va">room_templates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  standup <span class="op">=</span> <span class="st">"# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n"</span>,</span>
+<span>  planning <span class="op">=</span> <span class="st">"# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n"</span>,</span>
+<span>  retrospective <span class="op">=</span> <span class="st">"# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n"</span>,</span>
+<span>  brainstorm <span class="op">=</span> <span class="st">"# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">room_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rooms</span><span class="op">)</span>, <span class="va">rooms</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span></span>
-<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span></span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">style</span><span class="op">(</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/HTML.html" class="external-link">HTML</a></span><span class="op">(</span><span class="st">"</span></span>
-<span><span class="st">      .notes-container {</span></span>
-<span><span class="st">        border: 1px solid #ddd;</span></span>
-<span><span class="st">        border-radius: 4px;</span></span>
-<span><span class="st">        padding: 0;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      .notes-container textarea {</span></span>
-<span><span class="st">        font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;</span></span>
-<span><span class="st">        font-size: 14px;</span></span>
-<span><span class="st">        line-height: 1.5;</span></span>
-<span><span class="st">        border: none;</span></span>
-<span><span class="st">        resize: none;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      .room-header {</span></span>
-<span><span class="st">        background: #f8f9fa;</span></span>
-<span><span class="st">        padding: 10px 15px;</span></span>
-<span><span class="st">        border-bottom: 1px solid #ddd;</span></span>
-<span><span class="st">        border-radius: 4px 4px 0 0;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      .sync-indicator {</span></span>
-<span><span class="st">        display: inline-block;</span></span>
-<span><span class="st">        width: 8px;</span></span>
-<span><span class="st">        height: 8px;</span></span>
-<span><span class="st">        border-radius: 50%;</span></span>
-<span><span class="st">        background: #28a745;</span></span>
-<span><span class="st">        margin-right: 8px;</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">    "</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/bslib/reference/page_fillable.html" class="external-link">page_fillable</a></span><span class="op">(</span></span>
+<span>  padding <span class="op">=</span> <span class="st">"1rem"</span>,</span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span>class <span class="op">=</span> <span class="st">"d-flex justify-content-between align-items-center mb-3"</span>,</span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h2</a></span><span class="op">(</span><span class="st">"Collaborative Meeting Notes"</span>, class <span class="op">=</span> <span class="st">"mb-0"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadButton.html" class="external-link">downloadButton</a></span><span class="op">(</span><span class="st">"export"</span>, <span class="st">"Export as Quarto"</span>, class <span class="op">=</span> <span class="st">"btn-sm"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/titlePanel.html" class="external-link">titlePanel</a></span><span class="op">(</span><span class="st">"Collaborative Meeting Notes"</span><span class="op">)</span>,</span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidRow</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/column.html" class="external-link">column</a></span><span class="op">(</span></span>
-<span>      width <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/wellPanel.html" class="external-link">wellPanel</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h4</a></span><span class="op">(</span><span class="st">"Select Room"</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/radioButtons.html" class="external-link">radioButtons</a></span><span class="op">(</span></span>
-<span>          <span class="st">"room"</span>,</span>
-<span>          label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>          choices <span class="op">=</span> <span class="va">rooms</span>,</span>
-<span>          selected <span class="op">=</span> <span class="st">"standup"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">hr</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"text-muted"</span>,</span>
-<span>          <span class="va">tags</span><span class="op">$</span><span class="fu">span</span><span class="op">(</span>class <span class="op">=</span> <span class="st">"sync-indicator"</span><span class="op">)</span>,</span>
-<span>          <span class="st">"Sync active"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"text-muted small"</span>,</span>
-<span>          <span class="st">"Open multiple browser windows to collaborate in real-time."</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">hr</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadButton.html" class="external-link">downloadButton</a></span><span class="op">(</span><span class="st">"export"</span>, <span class="st">"Export as Quarto"</span>, class <span class="op">=</span> <span class="st">"btn-sm"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card.html" class="external-link">card</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card_body.html" class="external-link">card_header</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://rstudio.github.io/bslib/reference/navset.html" class="external-link">navset_pill</a></span><span class="op">(</span></span>
+<span>        id <span class="op">=</span> <span class="st">"room"</span>,</span>
+<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Daily Standup"</span>, value <span class="op">=</span> <span class="st">"standup"</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Sprint Planning"</span>, value <span class="op">=</span> <span class="st">"planning"</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Retrospective"</span>, value <span class="op">=</span> <span class="st">"retrospective"</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rstudio.github.io/bslib/reference/nav-items.html" class="external-link">nav_panel</a></span><span class="op">(</span><span class="st">"Brainstorming"</span>, value <span class="op">=</span> <span class="st">"brainstorm"</span><span class="op">)</span></span>
 <span>      <span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
-<span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/column.html" class="external-link">column</a></span><span class="op">(</span></span>
-<span>      width <span class="op">=</span> <span class="fl">9</span>,</span>
-<span>      <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span></span>
-<span>        class <span class="op">=</span> <span class="st">"notes-container"</span>,</span>
-<span>        <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">div</a></span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"room-header"</span>,</span>
-<span>          <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">h5</a></span><span class="op">(</span></span>
-<span>            style <span class="op">=</span> <span class="st">"margin: 0;"</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/textOutput.html" class="external-link">textOutput</a></span><span class="op">(</span><span class="st">"room_title"</span>, inline <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="co"># Create a textarea for each room (only active one is visible)</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span></span>
-<span>          condition <span class="op">=</span> <span class="st">"input.room == 'standup'"</span>,</span>
-<span>          <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span></span>
-<span>            <span class="st">"notes_standup"</span>,</span>
-<span>            label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            width <span class="op">=</span> <span class="st">"100%"</span>,</span>
-<span>            height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>            placeholder <span class="op">=</span> <span class="st">"Start typing your standup notes..."</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span></span>
-<span>          condition <span class="op">=</span> <span class="st">"input.room == 'planning'"</span>,</span>
-<span>          <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span></span>
-<span>            <span class="st">"notes_planning"</span>,</span>
-<span>            label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            width <span class="op">=</span> <span class="st">"100%"</span>,</span>
-<span>            height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>            placeholder <span class="op">=</span> <span class="st">"Start typing your planning notes..."</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span></span>
-<span>          condition <span class="op">=</span> <span class="st">"input.room == 'retrospective'"</span>,</span>
-<span>          <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span></span>
-<span>            <span class="st">"notes_retrospective"</span>,</span>
-<span>            label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            width <span class="op">=</span> <span class="st">"100%"</span>,</span>
-<span>            height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>            placeholder <span class="op">=</span> <span class="st">"Start typing your retrospective notes..."</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span></span>
-<span>          condition <span class="op">=</span> <span class="st">"input.room == 'brainstorm'"</span>,</span>
-<span>          <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span></span>
-<span>            <span class="st">"notes_brainstorm"</span>,</span>
-<span>            label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            width <span class="op">=</span> <span class="st">"100%"</span>,</span>
-<span>            height <span class="op">=</span> <span class="st">"500px"</span>,</span>
-<span>            placeholder <span class="op">=</span> <span class="st">"Start typing your ideas..."</span></span>
-<span>          <span class="op">)</span></span>
-<span>        <span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card_body.html" class="external-link">card_body</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'standup'"</span>,</span>
+<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_standup"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
+<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your standup notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'planning'"</span>,</span>
+<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_planning"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
+<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your planning notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'retrospective'"</span>,</span>
+<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_retrospective"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
+<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your retrospective notes..."</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/conditionalPanel.html" class="external-link">conditionalPanel</a></span><span class="op">(</span><span class="st">"input.room === 'brainstorm'"</span>,</span>
+<span>        <span class="fu"><a href="../reference/textarea_ui.html">textarea_ui</a></span><span class="op">(</span><span class="st">"notes_brainstorm"</span>, label <span class="op">=</span> <span class="cn">NULL</span>, width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"500px"</span>,</span>
+<span>                    placeholder <span class="op">=</span> <span class="st">"Start typing your ideas..."</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Initialize textarea servers for each room</span></span>
-<span>  <span class="co"># Each room has its own doc_id for independent collaboration</span></span>
-<span>  <span class="va">text_standup</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
-<span>    <span class="st">"notes_standup"</span>,</span>
-<span>    doc_id <span class="op">=</span> <span class="st">"standup"</span>,</span>
-<span>    initial_text <span class="op">=</span> <span class="st">"# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n"</span></span>
-<span>  <span class="op">)</span></span>
+<span>  <span class="va">text_standup</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_standup"</span>, doc_id <span class="op">=</span> <span class="st">"standup"</span>,</span>
+<span>                                  initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">standup</span><span class="op">)</span></span>
+<span>  <span class="va">text_planning</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_planning"</span>, doc_id <span class="op">=</span> <span class="st">"planning"</span>,</span>
+<span>                                   initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">planning</span><span class="op">)</span></span>
+<span>  <span class="va">text_retrospective</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_retrospective"</span>, doc_id <span class="op">=</span> <span class="st">"retrospective"</span>,</span>
+<span>                                        initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">retrospective</span><span class="op">)</span></span>
+<span>  <span class="va">text_brainstorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span><span class="st">"notes_brainstorm"</span>, doc_id <span class="op">=</span> <span class="st">"brainstorm"</span>,</span>
+<span>                                     initial_text <span class="op">=</span> <span class="va">room_templates</span><span class="op">$</span><span class="va">brainstorm</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">text_planning</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
-<span>    <span class="st">"notes_planning"</span>,</span>
-<span>    doc_id <span class="op">=</span> <span class="st">"planning"</span>,</span>
-<span>    initial_text <span class="op">=</span> <span class="st">"# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n"</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">text_retrospective</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
-<span>    <span class="st">"notes_retrospective"</span>,</span>
-<span>    doc_id <span class="op">=</span> <span class="st">"retrospective"</span>,</span>
-<span>    initial_text <span class="op">=</span> <span class="st">"# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n"</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">text_brainstorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/textarea_server.html">textarea_server</a></span><span class="op">(</span></span>
-<span>    <span class="st">"notes_brainstorm"</span>,</span>
-<span>    doc_id <span class="op">=</span> <span class="st">"brainstorm"</span>,</span>
-<span>    initial_text <span class="op">=</span> <span class="st">"# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Room title</span></span>
-<span>  <span class="va">output</span><span class="op">$</span><span class="va">room_title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderPrint.html" class="external-link">renderText</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="va">room_labels</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Get current room's text for export</span></span>
 <span>  <span class="va">current_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/reactive.html" class="external-link">reactive</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span></span>
-<span>      <span class="va">input</span><span class="op">$</span><span class="va">room</span>,</span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>,</span>
 <span>      <span class="st">"standup"</span> <span class="op">=</span> <span class="fu">text_standup</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>      <span class="st">"planning"</span> <span class="op">=</span> <span class="fu">text_planning</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>      <span class="st">"retrospective"</span> <span class="op">=</span> <span class="fu">text_retrospective</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="st">"brainstorm"</span> <span class="op">=</span> <span class="fu">text_brainstorm</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="st">""</span></span>
+<span>      <span class="st">"brainstorm"</span> <span class="op">=</span> <span class="fu">text_brainstorm</span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># Export handler</span></span>
 <span>  <span class="va">output</span><span class="op">$</span><span class="va">export</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadHandler.html" class="external-link">downloadHandler</a></span><span class="op">(</span></span>
-<span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>, <span class="st">"-notes-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">".qmd"</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
+<span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">room</span>, <span class="st">"-notes-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">".qmd"</span><span class="op">)</span>,</span>
 <span>    content <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">front_matter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
-<span>        <span class="st">"---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n"</span>,</span>
-<span>        <span class="va">room_labels</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
+<span>      <span class="va">titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>standup <span class="op">=</span> <span class="st">"Daily Standup"</span>, planning <span class="op">=</span> <span class="st">"Sprint Planning"</span>,</span>
+<span>                  retrospective <span class="op">=</span> <span class="st">"Retrospective"</span>, brainstorm <span class="op">=</span> <span class="st">"Brainstorming"</span><span class="op">)</span></span>
+<span>      <span class="va">front_matter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n"</span>,</span>
+<span>                              <span class="va">titles</span><span class="op">[</span><span class="va">input</span><span class="op">$</span><span class="va">room</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">front_matter</span>, <span class="fu">current_text</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">file</span><span class="op">)</span></span>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">)</span></span>

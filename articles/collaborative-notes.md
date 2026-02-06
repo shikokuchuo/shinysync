@@ -36,19 +36,10 @@ provides an in-process Automerge sync server:
 
 ``` r
 library(shiny)
+library(bslib)
 library(autoedit)
 library(autosync)
 library(automerge)
-
-# Available meeting rooms (names = display labels, values = IDs)
-rooms <- c(
-  "Daily Standup" = "standup",
-  "Sprint Planning" = "planning",
-  "Retrospective" = "retrospective",
-  "Brainstorming" = "brainstorm"
-)
-
-room_labels <- setNames(names(rooms), rooms)
 
 # Room-specific initial content templates
 room_templates <- list(
@@ -64,116 +55,56 @@ sync_server$start()
 
 # Create a document for each room with initial content
 doc_ids <- list()
-for (room in rooms) {
+for (room in names(room_templates)) {
   doc_ids[[room]] <- create_document(sync_server)
   doc <- get_document(sync_server, doc_ids[[room]])
   am_put(doc, AM_ROOT, "text", am_text(room_templates[[room]]))
   am_commit(doc, "init")
 }
 
-ui <- fluidPage(
-  tags$head(
-    tags$style(HTML("
-      .notes-container {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 0;
-      }
-      .room-header {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-bottom: 1px solid #ddd;
-        border-radius: 4px 4px 0 0;
-      }
-      .sync-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #28a745;
-        margin-right: 8px;
-      }
-    "))
+ui <- page_fillable(
+  padding = "1rem",
+  div(class = "d-flex justify-content-between align-items-center mb-3",
+    h2("Collaborative Meeting Notes", class = "mb-0"),
+    downloadButton("export", "Export as Quarto", class = "btn-sm")
   ),
-
-  titlePanel("Collaborative Meeting Notes"),
-
-  fluidRow(
-    column(
-      width = 3,
-      wellPanel(
-        h4("Select Room"),
-        radioButtons(
-          "room",
-          label = NULL,
-          choices = rooms,
-          selected = "standup"
-        ),
-        hr(),
-        p(
-          class = "text-muted",
-          tags$span(class = "sync-indicator"),
-          "Sync active"
-        ),
-        p(
-          class = "text-muted small",
-          "Open multiple browser windows to collaborate in real-time."
-        ),
-        hr(),
-        downloadButton("export", "Export as Quarto", class = "btn-sm")
-      )
-    ),
-
-    column(
-      width = 9,
-      div(
-        class = "notes-container",
-        div(
-          class = "room-header",
-          h5(
-            style = "margin: 0;",
-            textOutput("room_title", inline = TRUE)
-          )
-        ),
-        # Dynamically render the active editor
-        uiOutput("active_editor")
-      )
-    )
+  navset_card_pill(
+    id = "room",
+    nav_panel("Daily Standup", value = "standup", uiOutput("editor_standup")),
+    nav_panel("Sprint Planning", value = "planning", uiOutput("editor_planning")),
+    nav_panel("Retrospective", value = "retrospective", uiOutput("editor_retrospective")),
+    nav_panel("Brainstorming", value = "brainstorm", uiOutput("editor_brainstorm"))
   )
 )
 
 server <- function(input, output, session) {
-  # Dynamically render only the active room's editor
-  output$active_editor <- renderUI({
-    editor_output("editor", height = "500px")
+  output$editor_standup <- renderUI(editor_output("ed_standup", height = "500px"))
+  output$editor_planning <- renderUI(editor_output("ed_planning", height = "500px"))
+  output$editor_retrospective <- renderUI(editor_output("ed_retrospective", height = "500px"))
+  output$editor_brainstorm <- renderUI(editor_output("ed_brainstorm", height = "500px"))
+
+  output$ed_standup <- editor_render(editor(sync_server$url, doc_ids[["standup"]], height = "500px"))
+  output$ed_planning <- editor_render(editor(sync_server$url, doc_ids[["planning"]], height = "500px"))
+  output$ed_retrospective <- editor_render(editor(sync_server$url, doc_ids[["retrospective"]], height = "500px"))
+  output$ed_brainstorm <- editor_render(editor(sync_server$url, doc_ids[["brainstorm"]], height = "500px"))
+
+  current_content <- reactive({
+    switch(input$room,
+      "standup" = input$ed_standup_content,
+      "planning" = input$ed_planning_content,
+      "retrospective" = input$ed_retrospective_content,
+      "brainstorm" = input$ed_brainstorm_content
+    )
   })
 
-  output$editor <- editor_render({
-    editor(sync_server$url, doc_ids[[input$room]], height = "500px")
-  })
-
-  # Room title
-  output$room_title <- renderText({
-    room_labels[input$room]
-  })
-
-  # Get current room's text for export
-  current_text <- reactive({
-    input$editor_content
-  })
-
-  # Export handler
   output$export <- downloadHandler(
-    filename = function() {
-      paste0(input$room, "-notes-", Sys.Date(), ".qmd")
-    },
+    filename = function() paste0(input$room, "-notes-", Sys.Date(), ".qmd"),
     content = function(file) {
-      front_matter <- sprintf(
-        "---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n",
-        room_labels[input$room],
-        Sys.Date()
-      )
-      writeLines(paste0(front_matter, current_text()), file)
+      titles <- c(standup = "Daily Standup", planning = "Sprint Planning",
+                  retrospective = "Retrospective", brainstorm = "Brainstorming")
+      front_matter <- sprintf("---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n",
+                              titles[input$room], Sys.Date())
+      writeLines(paste0(front_matter, current_content()), file)
     }
   )
 }
@@ -208,190 +139,76 @@ separate collaborative spaces.
 
 ``` r
 library(shiny)
+library(bslib)
 library(autoedit)
 
-# Available meeting rooms (names = display labels, values = IDs)
-rooms <- c(
-  "Daily Standup" = "standup",
-  "Sprint Planning" = "planning",
-  "Retrospective" = "retrospective",
-  "Brainstorming" = "brainstorm"
+# Room-specific initial content templates
+room_templates <- list(
+  standup = "# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n",
+  planning = "# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n",
+  retrospective = "# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n",
+  brainstorm = "# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"
 )
 
-room_labels <- setNames(names(rooms), rooms)
-
-ui <- fluidPage(
-  tags$head(
-    tags$style(HTML("
-      .notes-container {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 0;
-      }
-      .notes-container textarea {
-        font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 14px;
-        line-height: 1.5;
-        border: none;
-        resize: none;
-      }
-      .room-header {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-bottom: 1px solid #ddd;
-        border-radius: 4px 4px 0 0;
-      }
-      .sync-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #28a745;
-        margin-right: 8px;
-      }
-    "))
+ui <- page_fillable(
+  padding = "1rem",
+  div(class = "d-flex justify-content-between align-items-center mb-3",
+    h2("Collaborative Meeting Notes", class = "mb-0"),
+    downloadButton("export", "Export as Quarto", class = "btn-sm")
   ),
-
-  titlePanel("Collaborative Meeting Notes"),
-
-  fluidRow(
-    column(
-      width = 3,
-      wellPanel(
-        h4("Select Room"),
-        radioButtons(
-          "room",
-          label = NULL,
-          choices = rooms,
-          selected = "standup"
-        ),
-        hr(),
-        p(
-          class = "text-muted",
-          tags$span(class = "sync-indicator"),
-          "Sync active"
-        ),
-        p(
-          class = "text-muted small",
-          "Open multiple browser windows to collaborate in real-time."
-        ),
-        hr(),
-        downloadButton("export", "Export as Quarto", class = "btn-sm")
+  card(
+    card_header(
+      navset_pill(
+        id = "room",
+        nav_panel("Daily Standup", value = "standup"),
+        nav_panel("Sprint Planning", value = "planning"),
+        nav_panel("Retrospective", value = "retrospective"),
+        nav_panel("Brainstorming", value = "brainstorm")
       )
     ),
-
-    column(
-      width = 9,
-      div(
-        class = "notes-container",
-        div(
-          class = "room-header",
-          h5(
-            style = "margin: 0;",
-            textOutput("room_title", inline = TRUE)
-          )
-        ),
-        # Create a textarea for each room (only active one is visible)
-        conditionalPanel(
-          condition = "input.room == 'standup'",
-          textarea_ui(
-            "notes_standup",
-            label = NULL,
-            width = "100%",
-            height = "500px",
-            placeholder = "Start typing your standup notes..."
-          )
-        ),
-        conditionalPanel(
-          condition = "input.room == 'planning'",
-          textarea_ui(
-            "notes_planning",
-            label = NULL,
-            width = "100%",
-            height = "500px",
-            placeholder = "Start typing your planning notes..."
-          )
-        ),
-        conditionalPanel(
-          condition = "input.room == 'retrospective'",
-          textarea_ui(
-            "notes_retrospective",
-            label = NULL,
-            width = "100%",
-            height = "500px",
-            placeholder = "Start typing your retrospective notes..."
-          )
-        ),
-        conditionalPanel(
-          condition = "input.room == 'brainstorm'",
-          textarea_ui(
-            "notes_brainstorm",
-            label = NULL,
-            width = "100%",
-            height = "500px",
-            placeholder = "Start typing your ideas..."
-          )
-        )
-      )
+    card_body(
+      conditionalPanel("input.room === 'standup'",
+        textarea_ui("notes_standup", label = NULL, width = "100%", height = "500px",
+                    placeholder = "Start typing your standup notes...")),
+      conditionalPanel("input.room === 'planning'",
+        textarea_ui("notes_planning", label = NULL, width = "100%", height = "500px",
+                    placeholder = "Start typing your planning notes...")),
+      conditionalPanel("input.room === 'retrospective'",
+        textarea_ui("notes_retrospective", label = NULL, width = "100%", height = "500px",
+                    placeholder = "Start typing your retrospective notes...")),
+      conditionalPanel("input.room === 'brainstorm'",
+        textarea_ui("notes_brainstorm", label = NULL, width = "100%", height = "500px",
+                    placeholder = "Start typing your ideas..."))
     )
   )
 )
 
 server <- function(input, output, session) {
-  # Initialize textarea servers for each room
-  # Each room has its own doc_id for independent collaboration
-  text_standup <- textarea_server(
-    "notes_standup",
-    doc_id = "standup",
-    initial_text = "# Daily Standup\n\n## What I did yesterday\n- \n\n## What I'm doing today\n- \n\n## Blockers\n- \n"
-  )
+  text_standup <- textarea_server("notes_standup", doc_id = "standup",
+                                  initial_text = room_templates$standup)
+  text_planning <- textarea_server("notes_planning", doc_id = "planning",
+                                   initial_text = room_templates$planning)
+  text_retrospective <- textarea_server("notes_retrospective", doc_id = "retrospective",
+                                        initial_text = room_templates$retrospective)
+  text_brainstorm <- textarea_server("notes_brainstorm", doc_id = "brainstorm",
+                                     initial_text = room_templates$brainstorm)
 
-  text_planning <- textarea_server(
-    "notes_planning",
-    doc_id = "planning",
-    initial_text = "# Sprint Planning\n\n## Goals\n- \n\n## User Stories\n- \n\n## Capacity\n- \n"
-  )
-
-  text_retrospective <- textarea_server(
-    "notes_retrospective",
-    doc_id = "retrospective",
-    initial_text = "# Retrospective\n\n## What went well\n- \n\n## What could be improved\n- \n\n## Action items\n- \n"
-  )
-
-  text_brainstorm <- textarea_server(
-    "notes_brainstorm",
-    doc_id = "brainstorm",
-    initial_text = "# Brainstorming Session\n\n## Ideas\n- \n\n## Discussion Notes\n- \n"
-  )
-
-  # Room title
-  output$room_title <- renderText({
-    room_labels[input$room]
-  })
-
-  # Get current room's text for export
   current_text <- reactive({
-    switch(
-      input$room,
+    switch(input$room,
       "standup" = text_standup(),
       "planning" = text_planning(),
       "retrospective" = text_retrospective(),
-      "brainstorm" = text_brainstorm(),
-      ""
+      "brainstorm" = text_brainstorm()
     )
   })
 
-  # Export handler
   output$export <- downloadHandler(
-    filename = function() {
-      paste0(input$room, "-notes-", Sys.Date(), ".qmd")
-    },
+    filename = function() paste0(input$room, "-notes-", Sys.Date(), ".qmd"),
     content = function(file) {
-      front_matter <- sprintf(
-        "---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n",
-        room_labels[input$room],
-        Sys.Date()
-      )
+      titles <- c(standup = "Daily Standup", planning = "Sprint Planning",
+                  retrospective = "Retrospective", brainstorm = "Brainstorming")
+      front_matter <- sprintf("---\ntitle: \"%s\"\ndate: \"%s\"\nformat: html\n---\n\n",
+                              titles[input$room], Sys.Date())
       writeLines(paste0(front_matter, current_text()), file)
     }
   )
