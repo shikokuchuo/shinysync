@@ -51,9 +51,15 @@ checklist_ui <- function(id, width = "100%") {
   shiny::div(
     style = sprintf("width: %s;", width),
     shiny::div(
-      style = "display: flex; gap: 8px; margin-bottom: 12px;",
-      shiny::textInput(ns("new_item"), label = NULL, placeholder = "Add new item..."),
-      shiny::actionButton(ns("add_btn"), "Add", class = "btn-primary")
+      style = "display: flex; gap: 8px; align-items: center;",
+      shiny::div(
+        style = "flex: 1;",
+        shiny::textInput(ns("new_item"), label = NULL, placeholder = "Add new item...")
+      ),
+      shiny::div(
+        style = "margin-bottom: 15px;",
+        shiny::actionButton(ns("add_btn"), "Add", class = "btn-primary btn-sm")
+      )
     ),
     shiny::uiOutput(ns("items_list"))
   )

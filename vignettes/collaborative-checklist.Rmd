@@ -1,8 +1,8 @@
 ---
-title: "Collaborative Checklist"
+title: "Collaborative Checklist and Kanban"
 output: rmarkdown::html_vignette
 vignette: >
- %\VignetteIndexEntry{Collaborative Checklist}
+ %\VignetteIndexEntry{Collaborative Checklist and Kanban}
  %\VignetteEngine{knitr::rmarkdown}
  %\VignetteEncoding{UTF-8}
 ---
@@ -15,10 +15,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette demonstrates how to build a collaborative checklist using autoedit's
-`checklist_ui()` and `checklist_server()` functions. Unlike the textarea module,
-the checklist provides a good collaborative experience because each action (add,
-toggle, delete) is discrete - there's no cursor position to preserve.
+This vignette demonstrates how to build collaborative task management interfaces
+using autoedit. We cover two approaches: simple checklists and kanban boards.
+Both provide a good collaborative experience because each action (add, toggle,
+delete, move) is discrete - there's no cursor position to preserve.
 ## Why checklists work well for collaboration
 
 Collaborative text editing is challenging because users have a cursor position
@@ -184,18 +184,159 @@ observe({
 })
 ```
 
-## Comparison with textarea
+---
 
-| Feature | `checklist_ui()` | `textarea_ui()` |
-|---------|------------------|-----------------|
-| Good collaborative UX | Yes | No (cursor jumps) |
-| Concurrent edits merge well | Yes | Yes |
-| Structured data | Yes (items) | No (plain text) |
-| Free-form text | No | Yes |
-| Use case | Task lists, voting | Notes, documents |
+## Kanban board
 
-Use checklists when you have discrete items. Use the textarea (or better, the
-full `editor()`) when you need free-form text editing.
+The checklist approach works well for simple lists, but sometimes you need to
+organize items into columns - a kanban board. The `kanban_ui()` and
+`kanban_server()` functions provide this, using a single shared Automerge
+document where each item has a `column` field.
+
+### Why a single document?
+
+With separate checklists (as in the task board example above), items can't move
+between columns - they're in separate documents. A kanban board uses one
+document with all items, so moving an item just changes its `column` field.
+Automerge syncs this change efficiently.
+
+### Basic kanban example
+
+```{r kanban-basic}
+library(shiny)
+library(autoedit)
+
+ui <- fluidPage(
+  h3("Team Kanban"),
+  kanban_ui("board")
+)
+
+server <- function(input, output, session) {
+  kanban_server(
+    "board",
+    doc_id = "team-kanban",
+    initial_items = list(
+      todo = c("Design feature", "Write tests"),
+      in_progress = c("Code review"),
+      done = c("Deploy v1.0")
+    )
+  )
+}
+
+shinyApp(ui, server)
+```
+
+### Complete kanban application
+
+```{r kanban-complete}
+library(shiny)
+library(bslib)
+library(autoedit)
+
+ui <- page_fillable(
+  padding = "1rem",
+  h2("Collaborative Kanban Board"),
+  p(class = "text-muted", "Session: ", textOutput("session_id", inline = TRUE)),
+  kanban_ui("board"),
+  hr(),
+  card(
+    card_header("Progress Summary"),
+    card_body(verbatimTextOutput("summary"))
+  )o
+)
+
+server <- function(input, output, session) {
+  output$session_id <- renderText(substr(session$token, 1, 6))
+
+  items <- kanban_server(
+    "board",
+    doc_id = "team-kanban",
+    initial_items = list(
+      todo = c("Design new feature", "Write tests", "Update docs"),
+      in_progress = c("Code review PR #42"),
+      done = c("Fix login bug", "Deploy v1.2")
+    )
+  )
+
+  output$summary <- renderPrint({
+    df <- items()
+    for (col in c("todo", "in_progress", "done")) {
+      col_items <- df[df$column == col, ]
+      cat(sprintf("%-12s %d items (%d done)\n",
+                  paste0(col, ":"),
+                  nrow(col_items),
+                  sum(col_items$done)))
+    }
+  })
+}
+
+shinyApp(ui, server)
+```
+
+Open in two browser windows and try:
+
+1. Moving items between columns with the arrow buttons
+2. Adding new items (they appear in "To Do")
+3. Checking items off
+4. Deleting items
+
+All changes sync instantly to other sessions.
+
+### Custom columns
+
+You can define your own columns:
+
+```{r kanban-custom}
+kanban_ui(
+  "board",
+  columns = c(
+    backlog = "Backlog",
+    ready = "Ready",
+    doing = "Doing",
+    review = "Review",
+    done = "Done"
+  ),
+  column_colors = c(
+    backlog = "#64748b",
+    ready = "#8b5cf6",
+    doing = "#3b82f6",
+    review = "#f59e0b",
+    done = "#22c55e"
+  )
+)
+
+kanban_server(
+  "board",
+  columns = c(
+    backlog = "Backlog",
+    ready = "Ready",
+    doing = "Doing",
+    review = "Review",
+    done = "Done"
+  ),
+  initial_items = list(
+    backlog = c("Future feature A", "Future feature B"),
+    ready = c("Approved task"),
+    doing = c("Current work"),
+    review = c("PR #123"),
+    done = c("Shipped!")
+  )
+)
+```
+
+---
+
+## Comparison
+
+| Feature | `checklist_ui()` | `kanban_ui()` | `textarea_ui()` |
+|---------|------------------|---------------|-----------------|
+| Good collaborative UX | Yes | Yes | No (cursor jumps) |
+| Move items between groups | No | Yes | N/A |
+| Structured data | Yes | Yes | No |
+| Use case | Simple lists | Workflow stages | Notes |
+
+Use checklists for simple task lists. Use kanban when items need to move through
+stages. Use the `editor()` for free-form text editing.
 
 ## Limitations
 
