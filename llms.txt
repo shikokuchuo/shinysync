@@ -3,6 +3,9 @@
 Real-time collaborative text editing for R and Shiny applications, built
 on [Automerge](https://automerge.org/) CRDT.
 
+[![Ask
+DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
+
 ## Installation
 
 ``` r
@@ -67,7 +70,7 @@ library(automerge)
 library(autosync)
 library(autoedit)
 
-server <- amsync_server(port = 3030, host = "127.0.0.1")
+server <- amsync_server()
 server$start()
 
 doc_id <- create_document(server)

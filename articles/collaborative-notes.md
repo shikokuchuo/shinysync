@@ -50,7 +50,7 @@ room_templates <- list(
 )
 
 # Create and start the sync server (once, at app startup)
-sync_server <- amsync_server(port = 3030)
+sync_server <- amsync_server()
 sync_server$start()
 
 # Create a document for each room with initial content

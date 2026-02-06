@@ -60,6 +60,7 @@
 <!-- badges: start -->
 
 <p>Real-time collaborative text editing for R and Shiny applications, built on <a href="https://automerge.org/" class="external-link">Automerge</a> CRDT.</p>
+<p><a href="https://deepwiki.com/shikokuchuo/autoedit" class="external-link"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -145,7 +146,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/amsync_server.html" class="external-link">amsync_server</a></span><span class="op">(</span>port <span class="op">=</span> <span class="fl">3030</span>, host <span class="op">=</span> <span class="st">"127.0.0.1"</span><span class="op">)</span></span>
+<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/amsync_server.html" class="external-link">amsync_server</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">server</span><span class="op">$</span><span class="fu">start</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">doc_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/create_document.html" class="external-link">create_document</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span></span>
@@ -222,7 +223,6 @@
 <ul class="list-unstyled">
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://deepwiki.com/shikokuchuo/autoedit" class="external-link"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a></li>
 </ul>
 </div>
 
