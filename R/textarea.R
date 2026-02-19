@@ -120,8 +120,8 @@ textarea_server <- function(
     })
 
     # Per-session sync states
-    sync_local <- automerge::am_sync_state_new()
-    sync_master <- automerge::am_sync_state_new()
+    sync_local <- automerge::am_sync_state()
+    sync_master <- automerge::am_sync_state()
 
     # Create local document and sync with master
     local_doc <- shiny::isolate({
