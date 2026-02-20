@@ -6,8 +6,7 @@
 #' Get or create master kanban state
 #' @noRd
 get_kanban_state <- function(doc_id) {
- if (!exists(doc_id, envir = .master_kanbans)) {
-
+  if (!exists(doc_id, envir = .master_kanbans)) {
     doc <- automerge::am_create()
     automerge::am_put(doc, automerge::AM_ROOT, "items", automerge::am_list())
     automerge::am_commit(doc, "init")
@@ -65,7 +64,11 @@ kanban_ui <- function(
 
   # Build column UIs
   column_uis <- lapply(names(columns), function(col_id) {
-    bg_color <- if (col_id %in% names(column_colors)) column_colors[[col_id]] else "#6c757d"
+    bg_color <- if (col_id %in% names(column_colors)) {
+      column_colors[[col_id]]
+    } else {
+      "#6c757d"
+    }
 
     shiny::div(
       style = "flex: 1; min-width: 250px; margin: 0 8px;",
@@ -89,7 +92,11 @@ kanban_ui <- function(
       style = "display: flex; gap: 8px; margin-bottom: 16px; align-items: center;",
       shiny::div(
         style = "max-width: 300px;",
-        shiny::textInput(ns("new_item"), label = NULL, placeholder = "Add new item...")
+        shiny::textInput(
+          ns("new_item"),
+          label = NULL,
+          placeholder = "Add new item..."
+        )
       ),
       shiny::div(
         style = "margin-bottom: 15px;",
@@ -169,7 +176,12 @@ kanban_server <- function(
                 automerge::am_map()
               )
               item <- automerge::am_get(master_state$doc, items_obj, pos)
-              automerge::am_put(master_state$doc, item, "id", generate_kanban_id())
+              automerge::am_put(
+                master_state$doc,
+                item,
+                "id",
+                generate_kanban_id()
+              )
               automerge::am_put(master_state$doc, item, "text", text)
               automerge::am_put(master_state$doc, item, "done", FALSE)
               automerge::am_put(master_state$doc, item, "column", col_id)
@@ -183,8 +195,8 @@ kanban_server <- function(
     })
 
     # Per-session sync states
-    sync_local <- automerge::am_sync_state_new()
-    sync_master <- automerge::am_sync_state_new()
+    sync_local <- automerge::am_sync_state()
+    sync_master <- automerge::am_sync_state()
 
     # Create local document and sync with master
     local_doc <- shiny::isolate({
@@ -251,9 +263,12 @@ kanban_server <- function(
 
     # Initial sync and populate local_items after flush
     shiny::isolate(incremental_sync())
-    session$onFlushed(function() {
-      local_items(get_items())
-    }, once = TRUE)
+    session$onFlushed(
+      function() {
+        local_items(get_items())
+      },
+      once = TRUE
+    )
 
     # Sync with master and optionally bump version
     sync_with_master <- function() {
@@ -345,9 +360,13 @@ kanban_server <- function(
     })
 
     # React to master version changes (from other sessions)
-    shiny::observeEvent(master_state$version, {
-      sync_with_master()
-    }, ignoreInit = TRUE)
+    shiny::observeEvent(
+      master_state$version,
+      {
+        sync_with_master()
+      },
+      ignoreInit = TRUE
+    )
 
     # Render each column
     lapply(seq_along(col_ids), function(col_idx) {

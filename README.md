@@ -21,10 +21,13 @@ pak::pak("shikokuchuo/autoedit")
 | Component | Description | Sync Server |
 |-----------|-------------|-------------|
 | `editor()` | CodeMirror 6 code editor with cursor-preserving sync | Required |
+| `sync_inputs()` | Synchronize any Shiny inputs across sessions with replay | Not required |
 | `kanban_ui()` | Collaborative kanban board with movable items | Not required |
 | `textarea_ui()` | Basic synchronized textarea | Not required |
 
 The **editor** provides the best experience for collaborative text editing, with proper cursor preservation when remote changes arrive.
+
+**sync_inputs** makes an entire Shiny app collaborative with a single function call. All scalar inputs (sliders, dropdowns, checkboxes, text inputs) are synchronized automatically. Pair with `replay_ui()` / `replay_server()` to step through the full history of input changes.
 
 The **kanban** module works well without a sync server because its actions (add, toggle, delete, move) are discrete - there's no cursor position to preserve.
 
@@ -46,6 +49,36 @@ server <- function(input, output, session) {
     in_progress = c("Code review"),
     done = c("Deploy v1.0")
   ))
+}
+
+shinyApp(ui, server)
+```
+
+### Collaborative Shiny App (serverless)
+
+```r
+library(shiny)
+library(autoedit)
+
+ui <- fluidPage(
+  selectInput("dist", "Distribution", c("Normal", "Uniform", "Exponential")),
+  sliderInput("n", "Observations", 10, 500, 100),
+  plotOutput("plot"),
+  replay_ui("timeline")
+)
+
+server <- function(input, output, session) {
+  replaying <- sync_inputs()
+  replay_server("timeline", replaying = replaying)
+
+  output$plot <- renderPlot({
+    data <- switch(input$dist,
+      Normal = rnorm(input$n),
+      Uniform = runif(input$n),
+      Exponential = rexp(input$n)
+    )
+    hist(data, main = input$dist, col = "steelblue", border = "white")
+  })
 }
 
 shinyApp(ui, server)
@@ -81,6 +114,7 @@ Open either app in multiple browser windows for real-time collaboration.
 
 ## Vignettes
 
+- **Collaborative Shiny Apps** - Using `sync_inputs()` with replay
 - **Collaborative Meeting Notes App** - Using the CodeMirror editor with a sync server
 - **Collaborative Kanban Board** - Serverless task management
 
