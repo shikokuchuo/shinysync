@@ -31,7 +31,9 @@ reloaded automatically when the app restarts. Set to \code{NULL} (default)
 for in-memory only.}
 }
 \value{
-Called for side effects. Returns \code{NULL} invisibly.
+A \code{reactiveVal} (logical). \code{FALSE} during normal
+operation, \code{TRUE} during replay. Can be ignored if replay is not
+used. Called primarily for side effects.
 }
 \description{
 Makes Shiny inputs collaborative by synchronizing their values across
@@ -85,5 +87,10 @@ if (interactive()) {
   shiny::shinyApp(ui, server)
 }
 
+}
+\seealso{
+Other sync: 
+\code{\link{replay_server}()},
+\code{\link{replay_ui}()}
 }
 \concept{sync}

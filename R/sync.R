@@ -3,6 +3,18 @@
 # Private environments to store master sync documents and file paths per doc_id
 .master_sync <- new.env(parent = emptyenv())
 .master_sync_paths <- new.env(parent = emptyenv())
+.sync_excludes <- new.env(parent = emptyenv())
+
+#' Register a module namespace prefix to exclude from sync
+#' @noRd
+register_sync_exclude <- function(doc_id, prefix) {
+  current <- if (exists(doc_id, envir = .sync_excludes)) {
+    .sync_excludes[[doc_id]]
+  } else {
+    character()
+  }
+  .sync_excludes[[doc_id]] <- unique(c(current, prefix))
+}
 
 #' Get or create master sync state
 #' @noRd
@@ -53,8 +65,15 @@ is_syncable <- function(x) {
 
 #' Filter input IDs for syncing
 #' @noRd
-filter_input_ids <- function(ids, include = NULL, exclude = NULL) {
+filter_input_ids <- function(ids, include = NULL, exclude = NULL,
+                             doc_id = NULL) {
   ids <- ids[!startsWith(ids, ".")]
+  if (!is.null(doc_id) && exists(doc_id, envir = .sync_excludes)) {
+    prefixes <- .sync_excludes[[doc_id]]
+    for (p in prefixes) {
+      ids <- ids[!startsWith(ids, p)]
+    }
+  }
   if (!is.null(include)) {
     ids <- intersect(ids, include)
   }
@@ -108,7 +127,9 @@ filter_input_ids <- function(ids, include = NULL, exclude = NULL) {
 #'   For multi-process deployments, use an external sync server with the
 #'   [editor()] widget instead.
 #'
-#' @return Called for side effects. Returns `NULL` invisibly.
+#' @return A \code{reactiveVal} (logical). \code{FALSE} during normal
+#'   operation, \code{TRUE} during replay. Can be ignored if replay is not
+#'   used. Called primarily for side effects.
 #'
 #' @examples
 #' if (interactive()) {
@@ -141,6 +162,7 @@ sync_inputs <- function(
   path = NULL
 ) {
   master_state <- get_sync_state(doc_id, path)
+  replaying <- shiny::reactiveVal(FALSE)
 
   # Per-session Automerge sync states
   sync_local <- automerge::am_sync_state()
@@ -197,10 +219,11 @@ sync_inputs <- function(
 
   # Track known values to suppress feedback loops.
   # When we update a widget from a remote change, the widget fires an input
-
   # event back to R. By recording the value we just set, the observer can
   # recognise the echo and skip re-syncing it.
   known <- new.env(parent = emptyenv())
+  initialized <- FALSE
+  resuming <- FALSE
 
   # Initial sync with master
   shiny::isolate(incremental_sync())
@@ -236,12 +259,13 @@ sync_inputs <- function(
       # onFlushed runs outside a reactive context, so isolate all reads.
       updates <- shiny::isolate({
         all_inputs <- shiny::reactiveValuesToList(session$input)
-        input_ids <- filter_input_ids(names(all_inputs), include, exclude)
+        input_ids <- filter_input_ids(names(all_inputs), include, exclude,
+                                      doc_id)
 
         inputs_obj <- automerge::am_get(
           local_doc, automerge::AM_ROOT, "inputs"
         )
-        has_writes <- FALSE
+        written_ids <- character()
         upd <- list()
 
         for (id in input_ids) {
@@ -266,12 +290,16 @@ sync_inputs <- function(
             # No existing value - write the session default
             automerge::am_put(local_doc, inputs_obj, id, val)
             assign(id, val, envir = known)
-            has_writes <- TRUE
+            written_ids <- c(written_ids, id)
           }
         }
 
-        if (has_writes) {
-          automerge::am_commit(local_doc, "init inputs")
+        if (length(written_ids) > 0L) {
+          automerge::am_commit(
+            local_doc,
+            paste("init:", paste(written_ids, collapse = ", ")),
+            time = Sys.time()
+          )
           sync_and_notify()
         }
 
@@ -282,16 +310,22 @@ sync_inputs <- function(
       if (length(updates) > 0L) {
         session$sendCustomMessage("__autoedit_sync__", updates)
       }
+      initialized <<- TRUE
     },
     once = TRUE
   )
 
   # Observe local input changes and propagate to master
   shiny::observe({
+    if (replaying()) return()
     all_inputs <- shiny::reactiveValuesToList(session$input)
-    input_ids <- filter_input_ids(names(all_inputs), include, exclude)
+    if (!initialized || resuming) {
+      resuming <<- FALSE
+      return()
+    }
+    input_ids <- filter_input_ids(names(all_inputs), include, exclude, doc_id)
 
-    changed <- FALSE
+    changed_ids <- character()
     inputs_obj <- automerge::am_get(local_doc, automerge::AM_ROOT, "inputs")
 
     for (id in input_ids) {
@@ -311,14 +345,51 @@ sync_inputs <- function(
 
       automerge::am_put(local_doc, inputs_obj, id, val)
       assign(id, val, envir = known)
-      changed <- TRUE
+      changed_ids <- c(changed_ids, id)
     }
 
-    if (changed) {
-      automerge::am_commit(local_doc, "update inputs")
+    if (length(changed_ids) > 0L) {
+      msg <- if (length(changed_ids) == 1L) {
+        sprintf("%s: %s", changed_ids, as.character(all_inputs[[changed_ids]]))
+      } else {
+        sprintf(
+          "%s: %d inputs",
+          paste(changed_ids, collapse = ", "),
+          length(changed_ids)
+        )
+      }
+      automerge::am_commit(local_doc, msg, time = Sys.time())
       shiny::isolate(sync_and_notify())
     }
   })
+
+  # Resync known state when replay ends
+  shiny::observeEvent(replaying(), {
+    if (!replaying()) {
+      shiny::isolate({
+        incremental_sync()
+        inputs_obj <- automerge::am_get(
+          local_doc, automerge::AM_ROOT, "inputs"
+        )
+        updates <- list()
+        for (id in ls(known)) {
+          val <- tryCatch(
+            automerge::am_get(local_doc, inputs_obj, id),
+            error = function(e) NULL
+          )
+          if (is.null(val)) next
+          assign(id, val, envir = known)
+          updates <- c(updates, list(list(id = id, value = val)))
+        }
+        if (length(updates) > 0L) {
+          session$sendCustomMessage("__autoedit_sync__", updates)
+        }
+        # Skip one observer cycle: session$input still has stale replay
+        # values that haven't been updated by the sendCustomMessage yet.
+        resuming <<- TRUE
+      })
+    }
+  }, ignoreInit = TRUE, priority = 10)
 
   # React to remote changes from other sessions
   shiny::observeEvent(
@@ -358,5 +429,5 @@ sync_inputs <- function(
     ignoreInit = TRUE
   )
 
-  invisible(NULL)
+  invisible(replaying)
 }

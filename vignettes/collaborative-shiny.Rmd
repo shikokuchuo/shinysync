@@ -169,6 +169,77 @@ controls. It treats each input as an atomic value with last-write-wins
 semantics, which is appropriate for controls like sliders and dropdowns
 where "merging" two values is not meaningful.
 
+## Replay
+
+`sync_inputs()` records every input change as an Automerge commit with a
+descriptive message and timestamp. The replay module lets you step through
+this history, reconstructing the exact app state at each point.
+
+Add `replay_ui()` to your UI and `replay_server()` to your server:
+
+```{r replay}
+library(shiny)
+library(autoedit)
+
+ui <- fluidPage(
+  titlePanel("Collaborative Distribution Viewer"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dist", "Distribution",
+        c("Normal", "Uniform", "Exponential")),
+      sliderInput("n", "Observations", 10, 500, 100)
+    ),
+    mainPanel(
+      plotOutput("plot"),
+      replay_ui("timeline")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  replaying <- sync_inputs()
+  replay_server("timeline", replaying = replaying)
+
+  output$plot <- renderPlot({
+    data <- switch(input$dist,
+      Normal = rnorm(input$n),
+      Uniform = runif(input$n),
+      Exponential = rexp(input$n)
+    )
+    hist(data, main = input$dist, col = "steelblue", border = "white")
+  })
+}
+
+shinyApp(ui, server)
+```
+
+The timeline slider shows one position per meaningful change (init commits
+from new sessions are filtered out). Dragging the slider reconstructs the
+document at that step and pushes the values to all widgets, so the plot
+updates to match. While the slider is not at the latest step, live syncing
+is paused — moving the slider to the end resumes normal operation.
+
+The step buttons (first, previous, next, last) navigate one commit at a
+time. The play button animates through the history automatically.
+
+### Customisation
+
+`replay_ui()` accepts two styling parameters:
+
+- `show_messages` — Display the commit message for each step (default
+  `TRUE`). Messages describe what changed, e.g. `"dist: Exponential"` or
+  `"n: 250"`.
+- `playback_ms` — Milliseconds between steps during animated playback
+  (default `1000`).
+
+Pass matching values to `replay_server()`:
+
+```{r replay-custom}
+replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
+replay_server("timeline", replaying = replaying,
+              show_messages = FALSE, playback_ms = 500)
+```
+
 ## Limitations
 
 - **Single R process only** — The shared state lives in memory. For
