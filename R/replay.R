@@ -155,8 +155,7 @@ replay_server <- function(
       changes <- automerge::am_get_changes(master_state$doc)
       if (length(changes) == 0L) {
         return(list(
-          all_changes = list(),
-          meaningful_indices = integer(),
+          hashes = list(),
           messages = character(),
           timestamps = numeric()
         ))
@@ -168,19 +167,20 @@ replay_server <- function(
         !is.null(msg) && !startsWith(msg, "init")
       }, logical(1))
 
-      meaningful_indices <- which(is_meaningful)
+      meaningful <- changes[is_meaningful]
 
-      messages <- vapply(changes[meaningful_indices], function(ch) {
+      hashes <- lapply(meaningful, automerge::am_change_hash)
+
+      messages <- vapply(meaningful, function(ch) {
         automerge::am_change_message(ch) %||% ""
       }, character(1))
 
-      timestamps <- vapply(changes[meaningful_indices], function(ch) {
+      timestamps <- vapply(meaningful, function(ch) {
         as.numeric(automerge::am_change_time(ch))
       }, numeric(1))
 
       list(
-        all_changes = changes,
-        meaningful_indices = meaningful_indices,
+        hashes = hashes,
         messages = messages,
         timestamps = timestamps
       )
@@ -188,7 +188,7 @@ replay_server <- function(
 
     # Track the number of meaningful steps
     n_steps <- shiny::reactive({
-      length(step_info()$meaningful_indices)
+      length(step_info()$hashes)
     })
 
     # Update slider max when history grows
@@ -292,7 +292,7 @@ replay_server <- function(
     shiny::observeEvent(input$timeline, {
       step <- input$timeline
       info <- step_info()
-      n <- length(info$meaningful_indices)
+      n <- length(info$hashes)
 
       if (is.null(step) || n == 0L) return()
 
@@ -314,10 +314,8 @@ replay_server <- function(
         replaying(TRUE)
       }
 
-      # Reconstruct document at this step
-      change_idx <- info$meaningful_indices[step]
-      snapshot <- automerge::am_create()
-      automerge::am_apply_changes(snapshot, info$all_changes[seq_len(change_idx)])
+      # Fork master document at historical point instead of rebuilding
+      snapshot <- automerge::am_fork(master_state$doc, info$hashes[step])
 
       # Read inputs from snapshot
       inputs_obj <- tryCatch(
