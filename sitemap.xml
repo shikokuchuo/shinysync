@@ -4,6 +4,7 @@
 <url><loc>http://shikokuchuo.net/autoedit/LICENSE-text.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/articles/collaborative-kanban.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/articles/collaborative-notes.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/articles/collaborative-shiny.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/articles/index.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/authors.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/index.html</loc></url>
@@ -14,6 +15,9 @@
 <url><loc>http://shikokuchuo.net/autoedit/reference/index.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/kanban_server.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/kanban_ui.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/reference/replay_server.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/reference/replay_ui.html</loc></url>
+<url><loc>http://shikokuchuo.net/autoedit/reference/sync_inputs.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/textarea_server.html</loc></url>
 <url><loc>http://shikokuchuo.net/autoedit/reference/textarea_ui.html</loc></url>
 </urlset>

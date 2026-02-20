@@ -39,6 +39,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/collaborative-kanban.html">Collaborative Kanban Board</a></li>
     <li><a class="dropdown-item" href="articles/collaborative-notes.html">Collaborative Meeting Notes App</a></li>
+    <li><a class="dropdown-item" href="articles/collaborative-shiny.html">Collaborative Shiny Apps</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -89,11 +90,16 @@
 <td>Required</td>
 </tr>
 <tr class="even">
+<td><code><a href="reference/sync_inputs.html">sync_inputs()</a></code></td>
+<td>Synchronize any Shiny inputs across sessions with replay</td>
+<td>Not required</td>
+</tr>
+<tr class="odd">
 <td><code><a href="reference/kanban_ui.html">kanban_ui()</a></code></td>
 <td>Collaborative kanban board with movable items</td>
 <td>Not required</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code><a href="reference/textarea_ui.html">textarea_ui()</a></code></td>
 <td>Basic synchronized textarea</td>
 <td>Not required</td>
@@ -101,6 +107,7 @@
 </tbody>
 </table>
 <p>The <strong>editor</strong> provides the best experience for collaborative text editing, with proper cursor preservation when remote changes arrive.</p>
+<p><strong>sync_inputs</strong> makes an entire Shiny app collaborative with a single function call. All scalar inputs (sliders, dropdowns, checkboxes, text inputs) are synchronized automatically. Pair with <code><a href="reference/replay_ui.html">replay_ui()</a></code> / <code><a href="reference/replay_server.html">replay_server()</a></code> to step through the full history of input changes.</p>
 <p>The <strong>kanban</strong> module works well without a sync server because its actions (add, toggle, delete, move) are discrete - there’s no cursor position to preserve.</p>
 <p>The <strong>textarea</strong> syncs correctly but has UX limitations (cursor jumps on remote edits), making it suitable only for simple use cases.</p>
 </div>
@@ -127,9 +134,39 @@
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="editor-with-sync-server">Editor (with sync server)<a class="anchor" aria-label="anchor" href="#editor-with-sync-server"></a>
+<h3 id="collaborative-shiny-app-serverless">Collaborative Shiny App (serverless)<a class="anchor" aria-label="anchor" href="#collaborative-shiny-app-serverless"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/fluidPage.html" class="external-link">fluidPage</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/selectInput.html" class="external-link">selectInput</a></span><span class="op">(</span><span class="st">"dist"</span>, <span class="st">"Distribution"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Normal"</span>, <span class="st">"Uniform"</span>, <span class="st">"Exponential"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/sliderInput.html" class="external-link">sliderInput</a></span><span class="op">(</span><span class="st">"n"</span>, <span class="st">"Observations"</span>, <span class="fl">10</span>, <span class="fl">500</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/plotOutput.html" class="external-link">plotOutput</a></span><span class="op">(</span><span class="st">"plot"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="reference/replay_ui.html">replay_ui</a></span><span class="op">(</span><span class="st">"timeline"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">replaying</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sync_inputs.html">sync_inputs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/replay_server.html">replay_server</a></span><span class="op">(</span><span class="st">"timeline"</span>, replaying <span class="op">=</span> <span class="va">replaying</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderPlot.html" class="external-link">renderPlot</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>    <span class="va">data</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">dist</span>,</span>
+<span>      Normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">n</span><span class="op">)</span>,</span>
+<span>      Uniform <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">n</span><span class="op">)</span>,</span>
+<span>      Exponential <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">data</span>, main <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">dist</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, border <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="editor-with-sync-server">Editor (with sync server)<a class="anchor" aria-label="anchor" href="#editor-with-sync-server"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autoedit" class="external-link">autoedit</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
@@ -159,6 +196,8 @@
 </h2>
 <ul>
 <li>
+<strong>Collaborative Shiny Apps</strong> - Using <code><a href="reference/sync_inputs.html">sync_inputs()</a></code> with replay</li>
+<li>
 <strong>Collaborative Meeting Notes App</strong> - Using the CodeMirror editor with a sync server</li>
 <li>
 <strong>Collaborative Kanban Board</strong> - Serverless task management</li>
@@ -168,9 +207,9 @@
 <h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
 </h2>
 <p>To rebuild the bundled JavaScript widget:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="related-packages">Related Packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>

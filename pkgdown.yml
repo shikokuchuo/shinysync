@@ -4,7 +4,8 @@ pkgdown_sha: ~
 articles:
   collaborative-kanban: collaborative-kanban.html
   collaborative-notes: collaborative-notes.html
-last_built: 2026-02-06T15:12Z
+  collaborative-shiny: collaborative-shiny.html
+last_built: 2026-02-20T14:49Z
 urls:
   reference: http://shikokuchuo.net/autoedit/reference
   article: http://shikokuchuo.net/autoedit/articles
