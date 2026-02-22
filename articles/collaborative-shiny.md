@@ -9,7 +9,7 @@ output — no sync server required.
 ## The idea
 
 A standard Shiny app gives each user an independent session. User A’s
-slider has no connection to User B’s slider.
+dropdown has no connection to User B’s dropdown.
 [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
 changes this by storing every input value in a shared Automerge
 document. When one user changes a control, the new value is propagated
@@ -19,49 +19,60 @@ This works well for any app where the inputs are standard Shiny widgets
 (sliders, dropdowns, numeric inputs, checkboxes, radio buttons, text
 inputs) and the goal is a shared view of the same output.
 
-## Basic example
+## Example
 
-A single line in the server function makes the app collaborative:
+The following app performs k-means clustering on the `iris` dataset.
+Adding
+[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+to the server makes it collaborative. The `path` argument enables
+persistence across restarts, and the
+[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+/
+[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md)
+module adds a timeline for stepping through the history of changes —
+both are optional.
 
 ``` r
 library(shiny)
 library(autoedit)
 
+vars <- names(iris)[1:4]
+
 ui <- fluidPage(
-  titlePanel("Collaborative Distribution Viewer"),
+  titlePanel("Collaborative Data Explorer"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("dist", "Distribution",
-        c("Normal", "Uniform", "Exponential")),
-      sliderInput("n", "Observations", 10, 500, 100),
-      checkboxInput("density", "Show density curve", FALSE)
+      selectInput("xcol", "X Variable", vars),
+      selectInput("ycol", "Y Variable", vars, selected = vars[2]),
+      numericInput("clusters", "Clusters", 3, min = 1, max = 9)
     ),
     mainPanel(
-      plotOutput("plot")
+      plotOutput("plot"),
+      replay_ui("timeline")
     )
   )
 )
 
 server <- function(input, output, session) {
-  sync_inputs()
+  replaying <- sync_inputs(path = "explorer.automerge")
+  replay_server("timeline", replaying = replaying)
 
   output$plot <- renderPlot({
-    data <- switch(input$dist,
-      Normal = rnorm(input$n),
-      Uniform = runif(input$n),
-      Exponential = rexp(input$n)
-    )
-    hist(data, main = input$dist, col = "steelblue", border = "white",
-         probability = input$density)
-    if (input$density) lines(density(data), col = "red", lwd = 2)
+    d <- iris[, c(input$xcol, input$ycol)]
+    cl <- kmeans(d, input$clusters)
+    plot(d, col = cl$cluster, pch = 19,
+      main = paste(input$clusters, "clusters"))
+    points(cl$centers, pch = 4, cex = 3, lwd = 3)
   })
 }
 
 shinyApp(ui, server)
 ```
 
-Open two browser tabs pointing to the app. Move the slider in one tab —
-the other tab’s slider moves to match and both plots update together.
+Open two browser tabs pointing to the app. Change the X variable in one
+tab — the other tab’s dropdown updates and the plot redraws. Every
+control is synchronized: switch to petal dimensions, increase the
+cluster count, and all sessions follow.
 
 ## How it works
 
@@ -77,9 +88,9 @@ sets up three things in the current session:
     protocol.
 
 2.  **An observer for local changes** — Watches
-    `reactiveValuesToList(input)` for changes. When a user moves a
-    slider, the new value is written to the local Automerge document and
-    synced to the master. A reactive version counter notifies other
+    `reactiveValuesToList(input)` for changes. When a user changes a
+    dropdown, the new value is written to the local Automerge document
+    and synced to the master. A reactive version counter notifies other
     sessions.
 
 3.  **A handler for remote changes** — When the master version bumps
@@ -103,7 +114,7 @@ excluded.
 Use `include` to sync only specific inputs:
 
 ``` r
-# Only sync these two controls
+# Only sync the variable selectors, not the cluster count
 sync_inputs(include = c("xcol", "ycol"))
 ```
 
@@ -133,25 +144,99 @@ sync_inputs(doc_id = "classroom-demo")
 sync_inputs(doc_id = "instructor-view")
 ```
 
+This lets a single app deployment serve multiple groups simultaneously,
+each with its own synchronized state.
+
 ## Persistence
 
 By default, the shared state lives in memory and is lost when R
-restarts. Pass a `path` to save the Automerge document to disk
-automatically:
+restarts. The `path` argument (shown in the example as
+`sync_inputs(path = "explorer.automerge")`) saves the Automerge document
+to disk after every change and reloads it on the next startup. Users
+reconnect and pick up exactly where they left off.
 
-``` r
-sync_inputs(path = "app-state.automerge")
-```
-
-The document is saved after every change (223 bytes for a typical
-3-input app) and reloaded on the next startup. Users reconnect and pick
-up exactly where they left off.
-
-This works because the Automerge document is self-contained — it holds
-every input value in a single binary blob via
+The Automerge document is self-contained — it holds every input value in
+a single binary blob via
 [`am_save()`](https://posit-dev.github.io/automerge-r/reference/am_save.html)
 /
 [`am_load()`](https://posit-dev.github.io/automerge-r/reference/am_load.html).
+
+## Replay
+
+Every input change is recorded as an Automerge commit with a descriptive
+message and timestamp. The replay module (shown in the example as
+`replay_ui("timeline")` / `replay_server("timeline", ...)`) lets you
+step through this history, reconstructing the exact app state at each
+point.
+
+The timeline slider shows one position per meaningful change (init
+commits from new sessions are filtered out). Dragging the slider
+reconstructs the document at that step and pushes the values to all
+widgets — the plot redraws to match. Commit messages narrate the
+exploration: `"xcol: Petal.Length"`, `"clusters: 5"`. While the slider
+is not at the latest step, live syncing is paused — moving to the end
+resumes normal operation.
+
+The step buttons (first, previous, next, last) navigate one commit at a
+time. The play button animates through the history automatically.
+Pressing play on a session where the team explored sepal dimensions with
+3 clusters, then switched to petal dimensions and increased to 5
+clusters, replays the entire analytical path as a narrated sequence.
+
+### Customisation
+
+[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+accepts two styling parameters:
+
+- `show_messages` — Display the commit message for each step (default
+  `TRUE`). Messages describe what changed, e.g. `"xcol: Petal.Length"`
+  or `"clusters: 5"`.
+- `playback_ms` — Milliseconds between steps during animated playback
+  (default `1000`).
+
+Pass matching values to
+[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md):
+
+``` r
+replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
+replay_server("timeline", replaying = replaying,
+              show_messages = FALSE, playback_ms = 500)
+```
+
+## Use cases
+
+### Shared dashboard driving
+
+The primary use case. A team opens the same app during a meeting, and
+anyone can drive the controls. Everyone sees the same plot update in
+real time — useful for group analysis sessions, classroom
+demonstrations, and pair exploration.
+
+### Persistent analysis state
+
+With `path`, a solo analyst can close and reopen the app without losing
+their variable selections and parameter settings.
+
+### Audit trail and provenance
+
+Every input change is a timestamped commit in the Automerge document
+history. For reproducible research or regulated environments, this
+provides a complete record of how the analysis was configured at every
+point. Combined with the replay module, the full sequence of analyst
+decisions is browsable after the fact.
+
+### Training and onboarding
+
+An instructor configures a dashboard, stepping through a series of
+analytical choices. Later, a student uses the replay timeline to walk
+through the instructor’s exploration step by step. The commit messages
+narrate each decision, and the outputs update to match.
+
+### Multiple independent rooms
+
+Using `doc_id`, a single app deployment can serve multiple groups
+simultaneously — each with its own synchronized state, similar to how
+collaborative documents use share links.
 
 ## When to use sync_inputs() vs other approaches
 
@@ -166,95 +251,13 @@ every input value in a single binary blob via
 is designed for the common case where a group of people want to look at
 the same dashboard and have anyone be able to drive the controls. It
 treats each input as an atomic value with last-write-wins semantics,
-which is appropriate for controls like sliders and dropdowns where
-“merging” two values is not meaningful.
-
-## Replay
-
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
-records every input change as an Automerge commit with a descriptive
-message and timestamp. The replay module lets you step through this
-history, reconstructing the exact app state at each point.
-
-Add
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
-to your UI and
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md)
-to your server:
-
-``` r
-library(shiny)
-library(autoedit)
-
-ui <- fluidPage(
-  titlePanel("Collaborative Distribution Viewer"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("dist", "Distribution",
-        c("Normal", "Uniform", "Exponential")),
-      sliderInput("n", "Observations", 10, 500, 100)
-    ),
-    mainPanel(
-      plotOutput("plot"),
-      replay_ui("timeline")
-    )
-  )
-)
-
-server <- function(input, output, session) {
-  replaying <- sync_inputs()
-  replay_server("timeline", replaying = replaying)
-
-  output$plot <- renderPlot({
-    data <- switch(input$dist,
-      Normal = rnorm(input$n),
-      Uniform = runif(input$n),
-      Exponential = rexp(input$n)
-    )
-    hist(data, main = input$dist, col = "steelblue", border = "white")
-  })
-}
-
-shinyApp(ui, server)
-```
-
-The timeline slider shows one position per meaningful change (init
-commits from new sessions are filtered out). Dragging the slider
-reconstructs the document at that step and pushes the values to all
-widgets, so the plot updates to match. While the slider is not at the
-latest step, live syncing is paused — moving the slider to the end
-resumes normal operation.
-
-The step buttons (first, previous, next, last) navigate one commit at a
-time. The play button animates through the history automatically.
-
-### Customisation
-
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
-accepts two styling parameters:
-
-- `show_messages` — Display the commit message for each step (default
-  `TRUE`). Messages describe what changed, e.g. `"dist: Exponential"` or
-  `"n: 250"`.
-- `playback_ms` — Milliseconds between steps during animated playback
-  (default `1000`).
-
-Pass matching values to
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md):
-
-``` r
-replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
-replay_server("timeline", replaying = replaying,
-              show_messages = FALSE, playback_ms = 500)
-```
+which is appropriate for controls like dropdowns and numeric inputs
+where “merging” two values is not meaningful.
 
 ## Limitations
 
-- **Single R process only** — The shared state lives in memory. For
-  multi-process deployments (e.g., multiple Shiny Server workers), use
-  an external sync server with
-  [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)
-  instead.
+- **Single R process only** — The shared state lives in memory and we do
+  not use an external sync server.
 
 - **Scalar values only** — Complex inputs like file uploads, data table
   selections, and plot brush events are not synchronized. Only length-1
