@@ -216,8 +216,7 @@ textarea_server <- function(
           {
             # Commit changes to local doc using splice diff
             text_obj <- automerge::am_get(local_doc, automerge::AM_ROOT, "text")
-            old_text <- automerge::am_text_content(text_obj)
-            automerge::am_text_update(text_obj, old_text, new_text)
+            automerge::am_text_update(text_obj, new_text)
             automerge::am_commit(
               local_doc,
               paste("Edit at", format(Sys.time(), "%H:%M:%S"))

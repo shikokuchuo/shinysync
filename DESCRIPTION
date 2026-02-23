@@ -19,7 +19,7 @@ BugReports: https://github.com/shikokuchuo/autoedit/issues
 Depends:
     R (>= 4.4)
 Imports:
-    automerge (>= 0.2.1),
+    automerge (>= 0.3.1.9000),
     htmlwidgets,
     shiny
 Suggests:
@@ -30,6 +30,7 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Remotes:
+    automerge=posit-dev/automerge-r,
     shikokuchuo/autosync
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
