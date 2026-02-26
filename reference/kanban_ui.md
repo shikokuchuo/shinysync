@@ -38,7 +38,7 @@ A Shiny UI element.
 ## See also
 
 Other kanban:
-[`kanban_server()`](http://shikokuchuo.net/autoedit/reference/kanban_server.md)
+[`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md)
 
 ## Examples
 

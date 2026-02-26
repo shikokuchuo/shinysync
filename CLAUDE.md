@@ -5,8 +5,8 @@ with code in this repository.
 
 ## Package Overview
 
-autoedit is an R package providing a real-time collaborative code editor
-widget built on CodeMirror 6 and Automerge CRDT. It connects via
+shinysync is an R package providing a real-time collaborative code
+editor widget built on CodeMirror 6 and Automerge CRDT. It connects via
 WebSocket to automerge-repo compatible sync servers for multi-user
 editing with automatic conflict resolution.
 
@@ -34,16 +34,16 @@ cd inst/build && npm install && npm run build
 ### R Layer
 
 - `R/editor.R` - Main widget functions:
-  [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md),
-  [`editor_output()`](http://shikokuchuo.net/autoedit/reference/editor-shiny.md),
+  [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md),
+  [`editor_output()`](http://shikokuchuo.net/shinysync/reference/editor-shiny.md),
   `render_editor()`
 - Uses htmlwidgets to bridge R and JavaScript
 
 ### JavaScript Widget
 
-- `inst/htmlwidgets/autoeditEditor.js` - Bundled widget (output from
+- `inst/htmlwidgets/shinysyncEditor.js` - Bundled widget (output from
   build)
-- `inst/htmlwidgets/autoeditEditor.yaml` - Widget dependency
+- `inst/htmlwidgets/shinysyncEditor.yaml` - Widget dependency
   configuration
 - `inst/build/` - Source and build tooling (esbuild bundles CodeMirror +
   Automerge)

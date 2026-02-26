@@ -2,7 +2,7 @@
 
 Server logic for the replay timeline module. Reads the change history
 from the master Automerge document created by
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md),
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md),
 reconstructs snapshots at each step, and pushes the values to widgets.
 
 ## Usage
@@ -22,18 +22,18 @@ replay_server(
 - id:
 
   Module ID (must match the ID used in
-  [`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)).
+  [`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)).
 
 - doc_id:
 
   Document identifier. Must match the `doc_id` used in
-  [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md).
+  [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md).
   Default is `"default"`.
 
 - replaying:
 
   The `reactiveVal` returned by
-  [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md).
+  [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md).
 
 - show_messages:
 
@@ -51,8 +51,8 @@ Called for side effects. Returns `NULL` invisibly.
 ## See also
 
 Other sync:
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md),
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md),
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 
 ## Examples
 

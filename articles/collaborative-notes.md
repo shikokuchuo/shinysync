@@ -1,18 +1,18 @@
 # Collaborative Meeting Notes App
 
 This vignette demonstrates how to build a collaborative meeting notes
-application using autoedit’s
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) widget
-with a sync server, and explains why simpler approaches using standard
-textareas are not suitable for real-time collaboration.
+application using shinysync’s
+[`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)
+widget with a sync server, and explains why simpler approaches using
+standard textareas are not suitable for real-time collaboration.
 
 ## Setup
 
-To run these examples, you need the autoedit package installed:
+To run these examples, you need the shinysync package installed:
 
 ``` r
 # install.packages("pak")
-pak::pak("shikokuchuo/autoedit")
+pak::pak("shikokuchuo/shinysync")
 ```
 
 Open multiple browser windows or tabs pointing to the same Shiny app URL
@@ -20,7 +20,7 @@ to see real-time collaboration in action.
 
 ## Collaborative editor with sync server
 
-The [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)
+The [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)
 widget provides the best collaborative editing experience. It uses
 CodeMirror 6 with the `automerge-codemirror` integration, which applies
 Automerge operations directly to CodeMirror’s document model. This means
@@ -36,7 +36,7 @@ provides an in-process Automerge sync server:
 ``` r
 library(shiny)
 library(bslib)
-library(autoedit)
+library(shinysync)
 library(autosync)
 library(automerge)
 
@@ -120,10 +120,10 @@ shinyApp(ui, server)
 
 You might wonder whether a simpler approach using Shiny’s
 [`textAreaInput()`](https://rdrr.io/pkg/shiny/man/textAreaInput.html)
-could work for collaborative editing. The autoedit package does include
-[`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)
+could work for collaborative editing. The shinysync package does include
+[`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md)
 and
-[`textarea_server()`](http://shikokuchuo.net/autoedit/reference/textarea_server.md)
+[`textarea_server()`](http://shikokuchuo.net/shinysync/reference/textarea_server.md)
 functions that synchronize text using Automerge without requiring a sync
 server. However, this approach has a fundamental limitation that makes
 it unsuitable for real-time collaboration.
@@ -139,7 +139,7 @@ You can demonstrate this problem with the following app:
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   h3("Cursor Reset Demo"),
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
 
   # Directly modify the master doc to simulate another user's edit
   observeEvent(input$remote_edit, {
-    master <- autoedit:::.master_docs[["cursor-test"]]
+    master <- shinysync:::.master_docs[["cursor-test"]]
     if (!is.null(master)) {
       text_obj <- automerge::am_get(master$doc, automerge::AM_ROOT, "text")
       content <- automerge::am_text_content(text_obj)
@@ -180,7 +180,7 @@ makes an edit, making it impossible to type continuously.
 
 ### Why CodeMirror works
 
-The [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)
+The [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)
 widget uses CodeMirror 6 with the `automerge-codemirror` integration.
 CodeMirror maintains a proper document model that can apply operations
 incrementally. When a remote change arrives, CodeMirror:
@@ -190,8 +190,9 @@ incrementally. When a remote change arrives, CodeMirror:
 3.  Preserves your editing context
 
 This is why
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with a
-sync server is the recommended approach for collaborative text editing.
+[`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) with
+a sync server is the recommended approach for collaborative text
+editing.
 
 ### Alternatives for serverless collaboration
 

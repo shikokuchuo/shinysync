@@ -2,7 +2,7 @@
 
 This vignette demonstrates how to make an entire Shiny app collaborative
 using
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md).
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md).
 Every connected user shares the same input state and sees the same
 output — no sync server required.
 
@@ -10,7 +10,7 @@ output — no sync server required.
 
 A standard Shiny app gives each user an independent session. User A’s
 dropdown has no connection to User B’s dropdown.
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 changes this by storing every input value in a shared Automerge
 document. When one user changes a control, the new value is propagated
 to all other sessions automatically.
@@ -23,18 +23,18 @@ inputs) and the goal is a shared view of the same output.
 
 The following app performs k-means clustering on the `iris` dataset.
 Adding
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 to the server makes it collaborative. The `path` argument enables
 persistence across restarts, and the
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+[`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)
 /
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md)
+[`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md)
 module adds a timeline for stepping through the history of changes —
 both are optional.
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 vars <- names(iris)[1:4]
 
@@ -76,7 +76,7 @@ cluster count, and all sessions follow.
 
 ## How it works
 
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 sets up three things in the current session:
 
 1.  **A shared Automerge document** — The entire input state is stored
@@ -127,7 +127,7 @@ sync_inputs(exclude = "reset_btn")
 
 Action buttons (whose values are integer click counters) are not
 scalar-typed in the way
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 checks, so they are generally excluded automatically. If you find an
 input being synced that shouldn’t be, use `exclude`.
 
@@ -185,7 +185,7 @@ clusters, replays the entire analytical path as a narrated sequence.
 
 ### Customisation
 
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+[`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)
 accepts two styling parameters:
 
 - `show_messages` — Display the commit message for each step (default
@@ -195,7 +195,7 @@ accepts two styling parameters:
   (default `1000`).
 
 Pass matching values to
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md):
+[`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md):
 
 ``` r
 replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
@@ -240,14 +240,14 @@ collaborative documents use share links.
 
 ## When to use sync_inputs() vs other approaches
 
-| Scenario                                  | Recommendation                                                                                                                                            |
-|:------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Shared controls for a visualization       | [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)                                                                               |
-| Collaborative text editing                | [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with sync server                                                                        |
-| Collaborative task tracking               | [`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md) / [`kanban_server()`](http://shikokuchuo.net/autoedit/reference/kanban_server.md) |
-| Mix of shared controls and free-form text | [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md) + [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)           |
+| Scenario                                  | Recommendation                                                                                                                                              |
+|:------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Shared controls for a visualization       | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)                                                                                |
+| Collaborative text editing                | [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) with sync server                                                                         |
+| Collaborative task tracking               | [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md) / [`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md) |
+| Mix of shared controls and free-form text | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) + [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)           |
 
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 is designed for the common case where a group of people want to look at
 the same dashboard and have anyone be able to drive the controls. It
 treats each input as an atomic value with last-write-wins semantics,

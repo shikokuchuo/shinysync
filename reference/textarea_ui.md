@@ -44,7 +44,7 @@ A Shiny UI element.
 ## See also
 
 Other textarea:
-[`textarea_server()`](http://shikokuchuo.net/autoedit/reference/textarea_server.md)
+[`textarea_server()`](http://shikokuchuo.net/shinysync/reference/textarea_server.md)
 
 ## Examples
 

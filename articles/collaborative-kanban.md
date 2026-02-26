@@ -1,10 +1,10 @@
 # Collaborative Kanban Board
 
 This vignette demonstrates how to build a collaborative kanban board
-using autoedit’s
-[`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md)
+using shinysync’s
+[`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)
 and
-[`kanban_server()`](http://shikokuchuo.net/autoedit/reference/kanban_server.md)
+[`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md)
 functions.
 
 ## Why kanban boards work well for collaboration
@@ -33,7 +33,7 @@ Automerge handles concurrent operations correctly:
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   h3("Team Kanban"),
@@ -62,7 +62,7 @@ Open in two browser windows and try moving items between columns.
 ``` r
 library(shiny)
 library(bslib)
-library(autoedit)
+library(shinysync)
 
 ui <- page_fillable(
   padding = "1rem",
@@ -162,7 +162,7 @@ kanban_server("board3", doc_id = "other-board")
 
 ## Return value
 
-[`kanban_server()`](http://shikokuchuo.net/autoedit/reference/kanban_server.md)
+[`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md)
 returns a reactive data frame with columns `id`, `text`, `done`, and
 `column`:
 
@@ -185,5 +185,5 @@ The kanban module:
 - Stores documents in memory (no persistence across restarts)
 
 For production deployments needing persistence and scaling, use
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) with a
-sync server.
+[`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) with
+a sync server.

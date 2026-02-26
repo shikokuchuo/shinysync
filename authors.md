@@ -12,16 +12,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/shikokuchuo/autoedit/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/shikokuchuo/shinysync/blob/main/DESCRIPTION)
 
-Gao C (2026). *autoedit: Collaborative Text Editing for Shiny with
-Automerge*. R package version 0.0.1.9000,
-<https://github.com/shikokuchuo/autoedit>.
+Gao C (2026). *shinysync: Collaborative Shiny Apps with Automerge*. R
+package version 0.0.1.9000, <https://github.com/shikokuchuo/shinysync>.
 
     @Manual{,
-      title = {autoedit: Collaborative Text Editing for Shiny with Automerge},
+      title = {shinysync: Collaborative Shiny Apps with Automerge},
       author = {Charlie Gao},
       year = {2026},
       note = {R package version 0.0.1.9000},
-      url = {https://github.com/shikokuchuo/autoedit},
+      url = {https://github.com/shikokuchuo/shinysync},
     }

@@ -78,14 +78,14 @@ input state survive R process restarts.
 
 This function synchronizes sessions within a single R process. For
 multi-process deployments, use an external sync server with the
-[`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md) widget
-instead.
+[`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)
+widget instead.
 
 ## See also
 
 Other sync:
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md),
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+[`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md),
+[`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)
 
 ## Examples
 

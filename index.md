@@ -1,25 +1,25 @@
-# autoedit
+# shinysync
 
 Real-time collaborative editing for R and Shiny applications, built on
 [Automerge](https://automerge.org/) CRDT.
 
 [![Ask
-DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
+DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/shinysync)
 
 ## Installation
 
 ``` r
-pak::pak("shikokuchuo/autoedit")
+pak::pak("shikokuchuo/shinysync")
 ```
 
 ## Features
 
-| Component                                                                   | Description                                              | Sync Server  |
-|-----------------------------------------------------------------------------|----------------------------------------------------------|--------------|
-| [`editor()`](http://shikokuchuo.net/autoedit/reference/editor.md)           | CodeMirror 6 code editor with cursor-preserving sync     | Required     |
-| [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md) | Synchronize any Shiny inputs across sessions with replay | Not required |
-| [`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md)     | Collaborative kanban board with movable items            | Not required |
-| [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md) | Basic synchronized textarea                              | Not required |
+| Component                                                                    | Description                                              | Sync Server  |
+|------------------------------------------------------------------------------|----------------------------------------------------------|--------------|
+| [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)           | CodeMirror 6 code editor with cursor-preserving sync     | Required     |
+| [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) | Synchronize any Shiny inputs across sessions with replay | Not required |
+| [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)     | Collaborative kanban board with movable items            | Not required |
+| [`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md) | Basic synchronized textarea                              | Not required |
 
 The **editor** provides the best experience for collaborative text
 editing, with proper cursor preservation when remote changes arrive.
@@ -27,9 +27,9 @@ editing, with proper cursor preservation when remote changes arrive.
 **sync_inputs** makes an entire Shiny app collaborative with a single
 function call. All scalar inputs (sliders, dropdowns, checkboxes, text
 inputs) are synchronized automatically. Pair with
-[`replay_ui()`](http://shikokuchuo.net/autoedit/reference/replay_ui.md)
+[`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)
 /
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md)
+[`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md)
 to step through the full history of input changes.
 
 The **kanban** module works well without a sync server because its
@@ -45,7 +45,7 @@ remote edits), making it suitable only for simple use cases.
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(kanban_ui("board"))
 
@@ -64,7 +64,7 @@ shinyApp(ui, server)
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   selectInput("dist", "Distribution", c("Normal", "Uniform", "Exponential")),
@@ -94,7 +94,7 @@ shinyApp(ui, server)
 
 ``` r
 library(shiny)
-library(autoedit)
+library(shinysync)
 library(autosync)
 library(automerge)
 
@@ -121,7 +121,7 @@ Open either app in multiple browser windows for real-time collaboration.
 ## Vignettes
 
 - **Collaborative Shiny Apps** - Using
-  [`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+  [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
   with replay
 - **Collaborative Meeting Notes App** - Using the CodeMirror editor with
   a sync server

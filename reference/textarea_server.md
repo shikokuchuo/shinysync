@@ -14,7 +14,7 @@ textarea_server(id, doc_id = "default", initial_text = "", debounce_ms = 150)
 - id:
 
   Module ID (must match the ID used in
-  [`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)).
+  [`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md)).
 
 - doc_id:
 
@@ -48,7 +48,7 @@ algorithm, ensuring eventual consistency across all sessions.
 ## See also
 
 Other textarea:
-[`textarea_ui()`](http://shikokuchuo.net/autoedit/reference/textarea_ui.md)
+[`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md)
 
 ## Examples
 

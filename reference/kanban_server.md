@@ -19,7 +19,7 @@ kanban_server(
 - id:
 
   Module ID (must match the ID used in
-  [`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md)).
+  [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)).
 
 - doc_id:
 
@@ -49,7 +49,7 @@ field indicating which column it belongs to.
 ## See also
 
 Other kanban:
-[`kanban_ui()`](http://shikokuchuo.net/autoedit/reference/kanban_ui.md)
+[`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)
 
 ## Examples
 

@@ -2,7 +2,7 @@
 
 Creates a timeline control for replaying the history of synchronized
 inputs recorded by
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md).
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md).
 
 ## Usage
 
@@ -33,8 +33,8 @@ A Shiny UI element.
 ## See also
 
 Other sync:
-[`replay_server()`](http://shikokuchuo.net/autoedit/reference/replay_server.md),
-[`sync_inputs()`](http://shikokuchuo.net/autoedit/reference/sync_inputs.md)
+[`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md),
+[`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 
 ## Examples
 
