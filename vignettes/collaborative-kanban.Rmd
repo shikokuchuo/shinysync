@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 This vignette demonstrates how to build a collaborative kanban board using
-autoedit's `kanban_ui()` and `kanban_server()` functions.
+shinysync's `kanban_ui()` and `kanban_server()` functions.
 
 ## Why kanban boards work well for collaboration
 
@@ -44,7 +44,7 @@ Automerge handles concurrent operations correctly:
 
 ```{r basic}
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   h3("Team Kanban"),
@@ -73,7 +73,7 @@ Open in two browser windows and try moving items between columns.
 ```{r complete}
 library(shiny)
 library(bslib)
-library(autoedit)
+library(shinysync)
 
 ui <- page_fillable(
   padding = "1rem",

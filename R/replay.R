@@ -333,7 +333,7 @@ replay_server <- function(
       })
 
       if (length(updates) > 0L) {
-        session$sendCustomMessage("__autoedit_sync__", updates)
+        session$sendCustomMessage("__shinysync__", updates)
       }
     })
 

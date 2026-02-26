@@ -46,10 +46,10 @@ test_that("kanban_ui() applies custom colors", {
 test_that("get_kanban_state() creates and reuses master document", {
   skip_if_not_installed("shiny")
 
-  env <- autoedit:::.master_kanbans
+  env <- shinysync:::.master_kanbans
   if (exists("test-kanban", envir = env)) rm("test-kanban", envir = env)
 
-  get_state <- autoedit:::get_kanban_state
+  get_state <- shinysync:::get_kanban_state
 
   shiny::isolate({
     state1 <- get_state("test-kanban")

@@ -41,7 +41,7 @@ through the history of changes — both are optional.
 
 ```{r example}
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 vars <- names(iris)[1:4]
 

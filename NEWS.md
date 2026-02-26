@@ -1,5 +1,5 @@
-# autoedit (development version)
+# shinysync (development version)
 
-# autoedit 0.0.1
+# shinysync 0.0.1
 
 * Initial release.

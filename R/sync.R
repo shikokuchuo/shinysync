@@ -240,9 +240,9 @@ sync_inputs <- function(
         immediate = TRUE,
         session = session,
         ui = shiny::tags$script(shiny::HTML(paste0(
-          "if (!window.__autoedit_sync__) {\n",
-          "  window.__autoedit_sync__ = true;\n",
-          "  Shiny.addCustomMessageHandler('__autoedit_sync__', function(updates) {\n",
+          "if (!window.__shinysync__) {\n",
+          "  window.__shinysync__ = true;\n",
+          "  Shiny.addCustomMessageHandler('__shinysync__', function(updates) {\n",
           "    updates.forEach(function(u) {\n",
           "      var el = document.getElementById(u.id);\n",
           "      if (!el) return;\n",
@@ -308,7 +308,7 @@ sync_inputs <- function(
 
       # Push any master values that differ from defaults to the widgets
       if (length(updates) > 0L) {
-        session$sendCustomMessage("__autoedit_sync__", updates)
+        session$sendCustomMessage("__shinysync__", updates)
       }
       initialized <<- TRUE
     },
@@ -382,7 +382,7 @@ sync_inputs <- function(
           updates <- c(updates, list(list(id = id, value = val)))
         }
         if (length(updates) > 0L) {
-          session$sendCustomMessage("__autoedit_sync__", updates)
+          session$sendCustomMessage("__shinysync__", updates)
         }
         # Skip one observer cycle: session$input still has stale replay
         # values that haven't been updated by the sendCustomMessage yet.
@@ -423,7 +423,7 @@ sync_inputs <- function(
       }
 
       if (length(updates) > 0L) {
-        session$sendCustomMessage("__autoedit_sync__", updates)
+        session$sendCustomMessage("__shinysync__", updates)
       }
     },
     ignoreInit = TRUE

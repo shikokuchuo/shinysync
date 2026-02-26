@@ -16,16 +16,16 @@ knitr::opts_chunk$set(
 ```
 
 This vignette demonstrates how to build a collaborative meeting notes application
-using autoedit's `editor()` widget with a sync server, and explains why simpler
+using shinysync's `editor()` widget with a sync server, and explains why simpler
 approaches using standard textareas are not suitable for real-time collaboration.
 
 ## Setup
 
-To run these examples, you need the autoedit package installed:
+To run these examples, you need the shinysync package installed:
 
 ```{r install, eval = FALSE}
 # install.packages("pak")
-pak::pak("shikokuchuo/autoedit")
+pak::pak("shikokuchuo/shinysync")
 ```
 
 Open multiple browser windows or tabs pointing to the same Shiny app URL to
@@ -47,7 +47,7 @@ package, which provides an in-process Automerge sync server:
 ```{r editor-example}
 library(shiny)
 library(bslib)
-library(autoedit)
+library(shinysync)
 library(autosync)
 library(automerge)
 
@@ -130,7 +130,7 @@ shinyApp(ui, server)
 ## Why not use a standard textarea?
 
 You might wonder whether a simpler approach using Shiny's `textAreaInput()`
-could work for collaborative editing. The autoedit package does include
+could work for collaborative editing. The shinysync package does include
 `textarea_ui()` and `textarea_server()` functions that synchronize text using
 Automerge without requiring a sync server. However, this approach has a
 fundamental limitation that makes it unsuitable for real-time collaboration.
@@ -145,7 +145,7 @@ You can demonstrate this problem with the following app:
 
 ```{r cursor-demo}
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   h3("Cursor Reset Demo"),
@@ -165,7 +165,7 @@ server <- function(input, output, session) {
 
   # Directly modify the master doc to simulate another user's edit
   observeEvent(input$remote_edit, {
-    master <- autoedit:::.master_docs[["cursor-test"]]
+    master <- shinysync:::.master_docs[["cursor-test"]]
     if (!is.null(master)) {
       text_obj <- automerge::am_get(master$doc, automerge::AM_ROOT, "text")
       content <- automerge::am_text_content(text_obj)

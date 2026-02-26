@@ -24,7 +24,7 @@ await esbuild.build({
   entryPoints: ["src/index.js"],
   bundle: true,
   format: "iife",
-  outfile: "../htmlwidgets/autoeditEditor.js",
+  outfile: "../htmlwidgets/shinysyncEditor.js",
   platform: "browser",
   plugins: [automergeBase64Plugin],
   define: {

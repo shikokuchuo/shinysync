@@ -45,11 +45,11 @@
 editor <- function(server_url, doc_id, timeout = 10000,
                    width = "100%", height = "400px") {
   htmlwidgets::createWidget(
-    name = "autoeditEditor",
+    name = "shinysyncEditor",
     x = list(serverUrl = server_url, docId = doc_id, timeout = timeout),
     width = width,
     height = height,
-    package = "autoedit"
+    package = "shinysync"
   )
 }
 
@@ -72,8 +72,8 @@ editor <- function(server_url, doc_id, timeout = 10000,
 #'
 #' @export
 editor_output <- function(outputId, width = "100%", height = "400px") {
-  htmlwidgets::shinyWidgetOutput(outputId, "autoeditEditor", width, height,
-                                  package = "autoedit")
+  htmlwidgets::shinyWidgetOutput(outputId, "shinysyncEditor", width, height,
+                                  package = "shinysync")
 }
 
 #' @rdname editor-shiny

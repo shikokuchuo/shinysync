@@ -4,7 +4,7 @@ import { automergeSyncPlugin } from "@automerge/automerge-codemirror"
 import { EditorView, basicSetup } from "codemirror"
 
 HTMLWidgets.widget({
-  name: 'autoeditEditor',
+  name: 'shinysyncEditor',
   type: 'output',
 
   factory: function(el, width, height) {

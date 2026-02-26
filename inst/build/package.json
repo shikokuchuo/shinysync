@@ -1,5 +1,5 @@
 {
-  "name": "autoedit-build",
+  "name": "shinysync-build",
   "private": true,
   "scripts": {
     "build": "node build.mjs"

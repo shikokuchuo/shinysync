@@ -3,7 +3,7 @@
 # -- is_syncable() ------------------------------------------------------------
 
 test_that("is_syncable() accepts scalar strings, numbers, and logicals", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_true(is_syncable("hello"))
   expect_true(is_syncable(42))
@@ -13,14 +13,14 @@ test_that("is_syncable() accepts scalar strings, numbers, and logicals", {
 })
 
 test_that("is_syncable() accepts scalar integers", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_true(is_syncable(1L))
   expect_true(is_syncable(0L))
 })
 
 test_that("is_syncable() accepts edge-case scalar values", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_true(is_syncable(""))
   expect_true(is_syncable(0))
@@ -33,7 +33,7 @@ test_that("is_syncable() accepts edge-case scalar values", {
 })
 
 test_that("is_syncable() rejects NULL and non-scalar values", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_false(is_syncable(NULL))
   expect_false(is_syncable(c("a", "b")))
@@ -43,7 +43,7 @@ test_that("is_syncable() rejects NULL and non-scalar values", {
 })
 
 test_that("is_syncable() rejects non-atomic types", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_false(is_syncable(list()))
   expect_false(is_syncable(mean))
@@ -53,7 +53,7 @@ test_that("is_syncable() rejects non-atomic types", {
 })
 
 test_that("is_syncable() rejects zero-length vectors", {
-  is_syncable <- autoedit:::is_syncable
+  is_syncable <- shinysync:::is_syncable
 
   expect_false(is_syncable(character()))
   expect_false(is_syncable(numeric()))
@@ -63,28 +63,28 @@ test_that("is_syncable() rejects zero-length vectors", {
 # -- filter_input_ids() -------------------------------------------------------
 
 test_that("filter_input_ids() excludes dotted names", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(c("dist", ".clientdata_url", "n", ".hidden"))
   expect_equal(result, c("dist", "n"))
 })
 
 test_that("filter_input_ids() applies include filter", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(c("dist", "n", "color"), include = c("dist", "n"))
   expect_equal(result, c("dist", "n"))
 })
 
 test_that("filter_input_ids() applies exclude filter", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(c("dist", "n", "color"), exclude = "color")
   expect_equal(result, c("dist", "n"))
 })
 
 test_that("filter_input_ids() applies include then exclude", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(
     c("a", "b", "c", "d"),
@@ -95,23 +95,23 @@ test_that("filter_input_ids() applies include then exclude", {
 })
 
 test_that("filter_input_ids() returns empty for all-dotted input", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(c(".a", ".b"))
   expect_length(result, 0L)
 })
 
 test_that("filter_input_ids() handles empty input vector", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(character())
   expect_length(result, 0L)
 })
 
 test_that("filter_input_ids() excludes registered module prefixes", {
-  env <- autoedit:::.sync_excludes
-  register <- autoedit:::register_sync_exclude
-  filter <- autoedit:::filter_input_ids
+  env <- shinysync:::.sync_excludes
+  register <- shinysync:::register_sync_exclude
+  filter <- shinysync:::filter_input_ids
 
   doc_id <- "test-filter-prefix"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -126,9 +126,9 @@ test_that("filter_input_ids() excludes registered module prefixes", {
 })
 
 test_that("filter_input_ids() excludes multiple module prefixes", {
-  env <- autoedit:::.sync_excludes
-  register <- autoedit:::register_sync_exclude
-  filter <- autoedit:::filter_input_ids
+  env <- shinysync:::.sync_excludes
+  register <- shinysync:::register_sync_exclude
+  filter <- shinysync:::filter_input_ids
 
   doc_id <- "test-filter-multi-prefix"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -144,7 +144,7 @@ test_that("filter_input_ids() excludes multiple module prefixes", {
 })
 
 test_that("filter_input_ids() works with no doc_id exclusions", {
-  filter <- autoedit:::filter_input_ids
+  filter <- shinysync:::filter_input_ids
 
   result <- filter(c("a", "b"), doc_id = "nonexistent-doc-id")
   expect_equal(result, c("a", "b"))
@@ -153,8 +153,8 @@ test_that("filter_input_ids() works with no doc_id exclusions", {
 # -- register_sync_exclude() ---------------------------------------------------
 
 test_that("register_sync_exclude() accumulates unique prefixes", {
-  env <- autoedit:::.sync_excludes
-  register <- autoedit:::register_sync_exclude
+  env <- shinysync:::.sync_excludes
+  register <- shinysync:::register_sync_exclude
 
   doc_id <- "test-exclude-accum"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -167,8 +167,8 @@ test_that("register_sync_exclude() accumulates unique prefixes", {
 })
 
 test_that("register_sync_exclude() creates entry for new doc_id", {
-  env <- autoedit:::.sync_excludes
-  register <- autoedit:::register_sync_exclude
+  env <- shinysync:::.sync_excludes
+  register <- shinysync:::register_sync_exclude
 
   doc_id <- "test-exclude-new"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -182,8 +182,8 @@ test_that("register_sync_exclude() creates entry for new doc_id", {
 # -- get_sync_state() ----------------------------------------------------------
 
 test_that("get_sync_state() creates and reuses master document", {
-  env <- autoedit:::.master_sync
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  get_state <- shinysync:::get_sync_state
 
   doc_id <- "test-sync-state"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -201,8 +201,8 @@ test_that("get_sync_state() creates and reuses master document", {
 })
 
 test_that("get_sync_state() initialises with an init commit", {
-  env <- autoedit:::.master_sync
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  get_state <- shinysync:::get_sync_state
 
   doc_id <- "test-sync-init-commit"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -216,8 +216,8 @@ test_that("get_sync_state() initialises with an init commit", {
 })
 
 test_that("get_sync_state() initialises version to 0", {
-  env <- autoedit:::.master_sync
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  get_state <- shinysync:::get_sync_state
 
   doc_id <- "test-sync-version-init"
   on.exit(if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env))
@@ -229,9 +229,9 @@ test_that("get_sync_state() initialises version to 0", {
 })
 
 test_that("get_sync_state() persists and restores from disk", {
-  env <- autoedit:::.master_sync
-  paths_env <- autoedit:::.master_sync_paths
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  paths_env <- shinysync:::.master_sync_paths
+  get_state <- shinysync:::get_sync_state
 
   tmp <- tempfile(fileext = ".automerge")
   doc_id <- "test-sync-persist"
@@ -261,9 +261,9 @@ test_that("get_sync_state() persists and restores from disk", {
 })
 
 test_that("get_sync_state() falls back to fresh doc on corrupt file", {
-  env <- autoedit:::.master_sync
-  paths_env <- autoedit:::.master_sync_paths
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  paths_env <- shinysync:::.master_sync_paths
+  get_state <- shinysync:::get_sync_state
 
   tmp <- tempfile(fileext = ".automerge")
   doc_id <- "test-sync-corrupt"
@@ -288,9 +288,9 @@ test_that("get_sync_state() falls back to fresh doc on corrupt file", {
 })
 
 test_that("get_sync_state() first caller with path wins", {
-  env <- autoedit:::.master_sync
-  paths_env <- autoedit:::.master_sync_paths
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  paths_env <- shinysync:::.master_sync_paths
+  get_state <- shinysync:::get_sync_state
 
   tmp1 <- tempfile(fileext = ".automerge")
   tmp2 <- tempfile(fileext = ".automerge")

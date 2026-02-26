@@ -4,7 +4,7 @@ test_that("editor() creates a valid htmlwidget", {
   widget <- editor("wss://sync.example.com", "test-doc-id")
 
   expect_s3_class(widget, "htmlwidget")
-  expect_s3_class(widget, "autoeditEditor")
+  expect_s3_class(widget, "shinysyncEditor")
 })
 
 test_that("editor() passes parameters correctly", {
@@ -56,7 +56,7 @@ test_that("editor_output() creates Shiny output binding", {
   expect_s3_class(output, "shiny.tag.list")
   html <- as.character(output)
   expect_match(html, "myEditor")
-  expect_match(html, "autoeditEditor")
+  expect_match(html, "shinysyncEditor")
 })
 
 test_that("editor_output() uses default dimensions", {

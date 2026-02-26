@@ -3,8 +3,8 @@
 # Helper: populate a master sync doc with a known history for testing.
 # Returns the doc_id used. Caller must clean up .master_sync[[doc_id]].
 setup_replay_doc <- function(doc_id, steps) {
-  env <- autoedit:::.master_sync
-  get_state <- autoedit:::get_sync_state
+  env <- shinysync:::.master_sync
+  get_state <- shinysync:::get_sync_state
 
   shiny::isolate({
     state <- get_state(doc_id)
@@ -23,8 +23,8 @@ setup_replay_doc <- function(doc_id, steps) {
 }
 
 cleanup_replay_doc <- function(doc_id) {
-  env <- autoedit:::.master_sync
-  excl <- autoedit:::.sync_excludes
+  env <- shinysync:::.master_sync
+  excl <- shinysync:::.sync_excludes
   if (exists(doc_id, envir = env)) rm(list = doc_id, envir = env)
   if (exists(doc_id, envir = excl)) rm(list = doc_id, envir = excl)
 }
@@ -387,7 +387,7 @@ test_that("replay_server sets replaying flag when not at end", {
 test_that("replay_server handles empty document gracefully", {
   doc_id <- "test-rs-empty"
   # No steps — only the init commit from get_sync_state
-  autoedit:::get_sync_state(doc_id)
+  shinysync:::get_sync_state(doc_id)
   on.exit(cleanup_replay_doc(doc_id))
 
   replaying <- shiny::reactiveVal(FALSE)
@@ -483,7 +483,7 @@ test_that("replay_server registers sync exclude for its namespace", {
     args = list(doc_id = doc_id, replaying = replaying),
     {
       # The module should have registered its namespace prefix
-      excl_env <- autoedit:::.sync_excludes
+      excl_env <- shinysync:::.sync_excludes
       expect_true(exists(doc_id, envir = excl_env))
       prefixes <- excl_env[[doc_id]]
       # Should contain the module's namespace prefix (ends with "-")

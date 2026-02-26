@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(autoedit)
+library(shinysync)
 
-test_check("autoedit")
+test_check("shinysync")

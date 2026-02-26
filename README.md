@@ -1,19 +1,19 @@
 
-# autoedit
+# shinysync
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/shikokuchuo/autoedit/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/shikokuchuo/shinysync/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/shikokuchuo/shinysync/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Real-time collaborative editing for R and Shiny applications, built on [Automerge](https://automerge.org/) CRDT.
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/autoedit)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/shinysync)
 
 ## Installation
 
 ``` r
-pak::pak("shikokuchuo/autoedit")
+pak::pak("shikokuchuo/shinysync")
 ```
 
 ## Features
@@ -39,7 +39,7 @@ The **textarea** syncs correctly but has UX limitations (cursor jumps on remote 
 
 ```r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(kanban_ui("board"))
 
@@ -58,7 +58,7 @@ shinyApp(ui, server)
 
 ```r
 library(shiny)
-library(autoedit)
+library(shinysync)
 
 ui <- fluidPage(
   selectInput("dist", "Distribution", c("Normal", "Uniform", "Exponential")),
@@ -88,7 +88,7 @@ shinyApp(ui, server)
 
 ```r
 library(shiny)
-library(autoedit)
+library(shinysync)
 library(autosync)
 library(automerge)
 
