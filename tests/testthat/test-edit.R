@@ -14,10 +14,10 @@ local_text_doc <- function(content, key = "text") {
   doc
 }
 
-# Helper: a fake sync_doc handle backed by a standalone text document, for
+# Helper: a fake autosync_doc handle backed by a standalone text document, for
 # exercising the editor without a live connection. `$push` just counts calls.
 fake_doc_handle <- function(content, key = "text", active = TRUE) {
-  handle <- structure(new.env(parent = emptyenv()), class = "sync_doc")
+  handle <- structure(new.env(parent = emptyenv()), class = "autosync_doc")
   handle$active <- active
   handle$doc <- local_text_doc(content, key)
   handle$push_count <- 0L
@@ -175,10 +175,10 @@ test_that("project_edit errors when the target is not a text object", {
 })
 
 test_that("project_edit validates its arguments", {
-  # A non-sync_doc is rejected before anything else.
-  expect_error(project_edit(list()), "must be a `sync_doc` handle")
+  # A non-autosync_doc is rejected before anything else.
+  expect_error(project_edit(list()), "must be an `autosync_doc` handle")
 
-  fake <- structure(new.env(parent = emptyenv()), class = "sync_doc")
+  fake <- structure(new.env(parent = emptyenv()), class = "autosync_doc")
   fake$active <- FALSE
   expect_error(project_edit(fake), "not active")
 

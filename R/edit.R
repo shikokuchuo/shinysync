@@ -2,7 +2,7 @@
 
 #' Edit a synced document live in a Shiny code editor
 #'
-#' Opens the text object at `at` within a `sync_doc` handle (from
+#' Opens the text object at `at` within an `autosync_doc` handle (from
 #' [autosync::sync_client()]'s `$open_doc()`, or [project_open()]'s `$open()`)
 #' in a Shiny [bslib::input_code_editor()] that stays in sync with the live
 #' document in both directions, blocks until the editor closes, then prints a
@@ -16,7 +16,7 @@
 #' be overwritten by that push; a smaller `debounce` narrows the window. The
 #' original's trailing-newline state is preserved.
 #'
-#' @param doc A `sync_doc` handle backed by an active connection (from
+#' @param doc An `autosync_doc` handle backed by an active connection (from
 #'   [autosync::sync_client()]'s `$open_doc()` or [project_open()]'s `$open()`).
 #' @param at Character path to the text object within the document. A single
 #'   string addresses a top-level key; a character vector navigates nested
@@ -36,8 +36,8 @@
 #' @importFrom automerge am_text_content am_text_update
 #' @export
 project_edit <- function(doc, at = "text", ext = NULL, debounce = 300L) {
-  if (!inherits(doc, "sync_doc")) {
-    stop("`doc` must be a `sync_doc` handle (from `sync_client()$open_doc()`)")
+  if (!inherits(doc, "autosync_doc")) {
+    stop("`doc` must be an `autosync_doc` handle (from `sync_client()$open_doc()`)")
   }
   if (!isTRUE(doc$active)) {
     stop("`doc` is not active; reopen it with `$open_doc()`")
@@ -143,7 +143,7 @@ poll_doc_to_editor <- function(target, shown) {
 #' we wrote, and the poll skips while the document still matches it.
 #'
 #' @param input The Shiny session's `input`.
-#' @param st An environment exposing `$doc` (a `sync_doc` handle or `NULL`
+#' @param st An environment exposing `$doc` (an `autosync_doc` handle or `NULL`
 #'   when nothing is open), `$at` (the text object's path), `$base` (the open
 #'   content, for trailing-newline state), and a mutable `$shown`.
 #' @param poll_ms How often (ms) to poll the live document for remote changes.
@@ -230,7 +230,7 @@ editor_body_ui <- function(value, ext, debounce) {
 #' the editor. Blocks until the app exits, returning the document's final
 #' content.
 #'
-#' @param doc A `sync_doc` handle.
+#' @param doc An `autosync_doc` handle.
 #' @param at Character path to the text object.
 #' @param ext File extension used to choose the syntax-highlighting language.
 #' @param debounce Milliseconds to debounce outgoing editor changes.

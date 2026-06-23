@@ -7,7 +7,7 @@
 project_edit(doc, at = "text", ext = NULL, debounce = 300L)
 }
 \arguments{
-\item{doc}{A \code{sync_doc} handle backed by an active connection (from
+\item{doc}{An \code{autosync_doc} handle backed by an active connection (from
 \code{\link[autosync:sync_client]{autosync::sync_client()}}'s \verb{$open_doc()} or \code{\link[=project_open]{project_open()}}'s \verb{$open()}).}
 
 \item{at}{Character path to the text object within the document. A single
@@ -23,7 +23,7 @@ syntax-highlighting language, or \code{NULL} for plain text.}
 Invisibly returns \code{doc}.
 }
 \description{
-Opens the text object at \code{at} within a \code{sync_doc} handle (from
+Opens the text object at \code{at} within an \code{autosync_doc} handle (from
 \code{\link[autosync:sync_client]{autosync::sync_client()}}'s \verb{$open_doc()}, or \code{\link[=project_open]{project_open()}}'s \verb{$open()})
 in a Shiny \code{\link[bslib:input_code_editor]{bslib::input_code_editor()}} that stays in sync with the live
 document in both directions, blocks until the editor closes, then prints a

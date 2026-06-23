@@ -27,7 +27,7 @@
 #'     \item{`paths()`}{Current sorted file paths.}
 #'     \item{`doc_id(path)`}{Resolve a path to its document ID.}
 #'     \item{`open(path)`}{Open the file's document over the project connection
-#'       and return its `sync_doc` handle. Reuses the connection and any
+#'       and return its `autosync_doc` handle. Reuses the connection and any
 #'       already-open document.}
 #'     \item{`refresh()`}{Re-resolve the file tree to pick up added or removed
 #'       files (the project document syncs live, so this just settles pending

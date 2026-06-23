@@ -113,7 +113,7 @@ build_project_app <- function(
     st <- new.env(parent = emptyenv())
     st$proj <- NULL # the project_open connection, once connected
     st$token <- token # JWT, pre-supplied or from the Authenticate flow
-    st$doc <- NULL # the currently-open sync_doc handle
+    st$doc <- NULL # the currently-open autosync_doc handle
     st$at <- "text" # path to the text object within a file document
     st$base <- "" # the open file's content (for trailing-newline state)
     st$shown <- "" # content the editor and document last agreed on

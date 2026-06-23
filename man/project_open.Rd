@@ -41,7 +41,7 @@ with the following fields and methods:
 \item{\code{paths()}}{Current sorted file paths.}
 \item{\code{doc_id(path)}}{Resolve a path to its document ID.}
 \item{\code{open(path)}}{Open the file's document over the project connection
-and return its \code{sync_doc} handle. Reuses the connection and any
+and return its \code{autosync_doc} handle. Reuses the connection and any
 already-open document.}
 \item{\code{refresh()}}{Re-resolve the file tree to pick up added or removed
 files (the project document syncs live, so this just settles pending

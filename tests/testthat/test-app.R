@@ -230,7 +230,7 @@ test_that("the app connects, browses, and edits over a live server", {
     session$setInputs(file = "/notes.md")
     expect_equal(rv$selected, "/notes.md")
     expect_equal(st$base, "hello world")
-    expect_s3_class(st$doc, "sync_doc")
+    expect_s3_class(st$doc, "autosync_doc")
 
     # Typing in the editor writes the minimal diff into the live document.
     session$setInputs(content = "hello brave world")
