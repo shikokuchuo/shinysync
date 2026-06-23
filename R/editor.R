@@ -30,7 +30,7 @@
 #' editor("wss://sync.automerge.org", "your-document-id")
 #'
 #' # Or use with an autosync server
-#' server <- autosync::amsync_server(port = 3030)
+#' server <- autosync::sync_server(port = 3030)
 #' server$start()
 #'
 #' doc_id <- autosync::create_document(server)

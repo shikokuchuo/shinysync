@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Package Overview
 
-shinysync is an R package providing a real-time collaborative code editor widget built on CodeMirror 6 and Automerge CRDT. It connects via WebSocket to automerge-repo compatible sync servers for multi-user editing with automatic conflict resolution.
+shinysync is an R package of collaborative Shiny components built on Automerge CRDT. It spans three sync architectures:
+
+- **Browser-owned sync** — the `editor()` htmlwidget (CodeMirror 6 + JS `@automerge/automerge-repo`/`automerge-codemirror`) connects the browser directly to a sync server.
+- **Server-free in-process sync** — `sync_inputs()`, `textarea_*`, `kanban_*`, `replay_*` keep a per-`doc_id` master Automerge document in R and sync each Shiny session to it (no external sync server).
+- **R-owned WebSocket sync** — the `project_*` family (`project_open()`, `project_app()`, `project_edit()`) browses/edits a project document served by an `autosync` sync server, with R owning the sync via `autosync::sync_client()` and a `bslib` editor in the browser. Moved here from autosync.
 
 ## Development Commands
 
@@ -28,8 +32,9 @@ cd inst/build && npm install && npm run build
 ## Architecture
 
 ### R Layer
-- `R/editor.R` - Main widget functions: `editor()`, `editor_output()`, `render_editor()`
-- Uses htmlwidgets to bridge R and JavaScript
+- `R/editor.R` - htmlwidget functions: `editor()`, `editor_output()`, `editor_render()` (bridges R and JS via htmlwidgets)
+- `R/sync.R`, `R/textarea.R`, `R/kanban.R`, `R/replay.R` - server-free in-process collaborative modules
+- `R/project.R`, `R/app.R`, `R/edit.R` - the `project_*` family (server-backed project browser/editor over `autosync`); `R/utils.R` holds their small helpers
 
 ### JavaScript Widget
 - `inst/htmlwidgets/shinysyncEditor.js` - Bundled widget (output from build)
@@ -37,7 +42,7 @@ cd inst/build && npm install && npm run build
 - `inst/build/` - Source and build tooling (esbuild bundles CodeMirror + Automerge)
 
 ### Key Dependencies
-- R: htmlwidgets (required), automerge/autosync/shiny (suggested)
+- R Imports: automerge, autosync, bslib, htmlwidgets, later, shiny, tools
 - JS: @automerge/automerge-repo, @automerge/automerge-codemirror, codemirror
 
 ## Document Structure

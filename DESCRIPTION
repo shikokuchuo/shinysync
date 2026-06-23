@@ -21,11 +21,13 @@ Depends:
     R (>= 4.4)
 Imports:
     automerge (>= 0.4.0),
-    htmlwidgets,
-    shiny
-Suggests:
     autosync,
-    bslib,
+    bslib (>= 0.10.0),
+    htmlwidgets,
+    later,
+    shiny,
+    tools
+Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
