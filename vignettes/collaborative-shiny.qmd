@@ -1,19 +1,15 @@
 ---
 title: "Collaborative Shiny Apps"
-output: rmarkdown::html_vignette
 vignette: >
- %\VignetteIndexEntry{Collaborative Shiny Apps}
- %\VignetteEngine{knitr::rmarkdown}
- %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Collaborative Shiny Apps}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
- collapse = TRUE,
- comment = "#>",
- eval = FALSE
-)
-```
 
 This vignette demonstrates how to make an entire Shiny app collaborative
 using `sync_inputs()`. Every connected user shares the same input state
@@ -39,7 +35,8 @@ Adding `sync_inputs()` to the server makes it collaborative. The
 `replay_ui()` / `replay_server()` module adds a timeline for stepping
 through the history of changes — both are optional.
 
-```{r example}
+```{r}
+#| label: example
 library(shiny)
 library(shinysync)
 
@@ -114,14 +111,16 @@ Inputs starting with `.` (Shiny internals) are always excluded.
 
 Use `include` to sync only specific inputs:
 
-```{r include}
+```{r}
+#| label: include
 # Only sync the variable selectors, not the cluster count
 sync_inputs(include = c("xcol", "ycol"))
 ```
 
 Use `exclude` to sync everything except certain inputs:
 
-```{r exclude}
+```{r}
+#| label: exclude
 # Sync all inputs except the action button
 sync_inputs(exclude = "reset_btn")
 ```
@@ -136,7 +135,8 @@ be, use `exclude`.
 The `doc_id` parameter identifies the shared state. All sessions using the
 same `doc_id` see the same inputs:
 
-```{r doc-id}
+```{r}
+#| label: doc-id
 # These sessions share state
 sync_inputs(doc_id = "classroom-demo")
 
@@ -192,7 +192,8 @@ clusters, replays the entire analytical path as a narrated sequence.
 
 Pass matching values to `replay_server()`:
 
-```{r replay-custom}
+```{r}
+#| label: replay-custom
 replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
 replay_server("timeline", replaying = replaying,
               show_messages = FALSE, playback_ms = 500)

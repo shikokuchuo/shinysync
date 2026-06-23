@@ -1,19 +1,15 @@
 ---
 title: "Collaborative Kanban Board"
-output: rmarkdown::html_vignette
 vignette: >
- %\VignetteIndexEntry{Collaborative Kanban Board}
- %\VignetteEngine{knitr::rmarkdown}
- %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Collaborative Kanban Board}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
- collapse = TRUE,
- comment = "#>",
- eval = FALSE
-)
-```
 
 This vignette demonstrates how to build a collaborative kanban board using
 shinysync's `kanban_ui()` and `kanban_server()` functions.
@@ -42,7 +38,8 @@ Automerge handles concurrent operations correctly:
 
 ## Basic example
 
-```{r basic}
+```{r}
+#| label: basic
 library(shiny)
 library(shinysync)
 
@@ -70,7 +67,8 @@ Open in two browser windows and try moving items between columns.
 
 ## Complete application
 
-```{r complete}
+```{r}
+#| label: complete
 library(shiny)
 library(bslib)
 library(shinysync)
@@ -119,7 +117,8 @@ shinyApp(ui, server)
 
 You can define your own columns:
 
-```{r custom}
+```{r}
+#| label: custom
 kanban_ui(
   "board",
   columns = c(
@@ -162,7 +161,8 @@ kanban_server(
 The `doc_id` parameter identifies the collaborative document. All sessions
 using the same `doc_id` synchronize together:
 
-```{r doc-id}
+```{r}
+#| label: doc-id
 # These sync together
 kanban_server("board1", doc_id = "shared-board")
 kanban_server("board2", doc_id = "shared-board")
@@ -176,7 +176,8 @@ kanban_server("board3", doc_id = "other-board")
 `kanban_server()` returns a reactive data frame with columns `id`, `text`,
 `done`, and `column`:
 
-```{r return}
+```{r}
+#| label: return
 items <- kanban_server("board", doc_id = "my-board")
 
 observe({

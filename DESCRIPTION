@@ -28,11 +28,10 @@ Imports:
     shiny,
     tools
 Suggests:
-    knitr,
-    rmarkdown,
+    quarto,
     testthat (>= 3.0.0)
-VignetteBuilder: 
-    knitr
+VignetteBuilder:
+    quarto
 Remotes:
     shikokuchuo/autosync
 Config/Needs/website: tidyverse/tidytemplate

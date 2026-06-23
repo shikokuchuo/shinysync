@@ -1,19 +1,15 @@
 ---
 title: "Collaborative Meeting Notes App"
-output: rmarkdown::html_vignette
 vignette: >
- %\VignetteIndexEntry{Collaborative Meeting Notes App}
- %\VignetteEngine{knitr::rmarkdown}
- %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Collaborative Meeting Notes App}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
- collapse = TRUE,
- comment = "#>",
- eval = FALSE
-)
-```
 
 This vignette demonstrates how to build a collaborative meeting notes application
 using shinysync's `editor()` widget with a sync server, and explains why simpler
@@ -21,13 +17,7 @@ approaches using standard textareas are not suitable for real-time collaboration
 
 ## Setup
 
-To run these examples, you need the shinysync package installed:
-
-```{r install, eval = FALSE}
-# install.packages("pak")
-pak::pak("shikokuchuo/shinysync")
-```
-
+To run these examples, you need the shinysync package installed.
 Open multiple browser windows or tabs pointing to the same Shiny app URL to
 see real-time collaboration in action.
 
@@ -44,7 +34,8 @@ documents can be saved and restored across sessions.
 The following example uses the [autosync](https://github.com/shikokuchuo/autosync)
 package, which provides an in-process Automerge sync server:
 
-```{r editor-example}
+```{r}
+#| label: editor-example
 library(shiny)
 library(bslib)
 library(shinysync)
@@ -60,7 +51,7 @@ room_templates <- list(
 )
 
 # Create and start the sync server (once, at app startup)
-sync_server <- amsync_server()
+sync_server <- sync_server()
 sync_server$start()
 
 # Create a document for each room with initial content
@@ -143,7 +134,8 @@ This means that when another user's changes arrive, the cursor position is lost.
 
 You can demonstrate this problem with the following app:
 
-```{r cursor-demo}
+```{r}
+#| label: cursor-demo
 library(shiny)
 library(shinysync)
 

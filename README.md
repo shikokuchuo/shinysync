@@ -24,6 +24,9 @@ pak::pak("shikokuchuo/shinysync")
 | `sync_inputs()` | Synchronize any Shiny inputs across sessions with replay | Not required |
 | `kanban_ui()` | Collaborative kanban board with movable items | Not required |
 | `textarea_ui()` | Basic synchronized textarea | Not required |
+| `project_open()` | Browse a project document's file tree over a sync server | Required |
+| `project_app()` | Single-window app to connect, browse, and edit project files | Required |
+| `project_edit()` | Live-edit a synced document's text in a `bslib` code editor | Required |
 
 The **editor** provides the best experience for collaborative text editing, with proper cursor preservation when remote changes arrive.
 
@@ -32,6 +35,8 @@ The **editor** provides the best experience for collaborative text editing, with
 The **kanban** module works well without a sync server because its actions (add, toggle, delete, move) are discrete - there's no cursor position to preserve.
 
 The **textarea** syncs correctly but has UX limitations (cursor jumps on remote edits), making it suitable only for simple use cases.
+
+The **project** family browses and edits a *project document* served by an [autosync](https://github.com/shikokuchuo/autosync) (or other automerge-repo) sync server, with R owning the WebSocket sync rather than the browser. A project is an Automerge document with a `files` map of paths to per-file document IDs. `project_open()` opens a persistent connection and exposes the file tree, `project_edit()` live-edits one file's text in a `bslib::input_code_editor()`, and `project_app()` wraps both in a single-window connect/browse/edit Shiny gadget.
 
 ## Quick Start
 
@@ -92,7 +97,7 @@ library(shinysync)
 library(autosync)
 library(automerge)
 
-sync_server <- amsync_server()
+sync_server <- sync_server()
 sync_server$start()
 
 doc_id <- create_document(sync_server)
@@ -111,6 +116,22 @@ shinyApp(ui, server)
 ```
 
 Open either app in multiple browser windows for real-time collaboration.
+
+### Project Browser (R-owned sync)
+
+```r
+library(shinysync)
+
+# Single-window app: connect, browse the file tree, and edit files live
+project_app("wss://sync.automerge.org", proj_id)
+
+# Or drive the connection from R directly
+proj <- project_open("wss://sync.automerge.org", proj_id)
+proj                                          # prints the file tree
+doc <- proj$open("/index.qmd")        # open a file over the connection
+project_edit(doc, at = "text", ext = ".qmd")  # edit live in a code editor
+proj$close()                                  # disconnect when finished
+```
 
 ## Vignettes
 
