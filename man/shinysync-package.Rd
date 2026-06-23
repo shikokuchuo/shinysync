@@ -4,7 +4,7 @@
 \name{shinysync-package}
 \alias{shinysync}
 \alias{shinysync-package}
-\title{shinysync: Collaborative Shiny Applications with Automerge}
+\title{shinysync: Collaborative Shiny Apps with 'Automerge'}
 \description{
 Real-time collaborative widgets for Shiny applications, built on 'Automerge' 'CRDT'. Provides a 'CodeMirror' 6 code editor with WebSocket sync, collaborative textareas and kanban boards, general input synchronization across sessions, and a replay timeline for reviewing interaction history.
 }
@@ -20,6 +20,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Charlie Gao \email{charlie.gao@posit.co} (\href{https://orcid.org/0000-0002-0750-061X}{ORCID})
+
+Authors:
+\itemize{
+  \item Charlie Gao \email{charlie.gao@posit.co} (\href{https://orcid.org/0000-0002-0750-061X}{ORCID})
+}
 
 Other contributors:
 \itemize{

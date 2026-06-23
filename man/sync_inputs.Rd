@@ -14,7 +14,7 @@ sync_inputs(
 }
 \arguments{
 \item{session}{The Shiny session object. Default uses
-\code{\link[shiny:domains]{shiny::getDefaultReactiveDomain()}}.}
+\code{\link[shiny:getDefaultReactiveDomain]{shiny::getDefaultReactiveDomain()}}.}
 
 \item{doc_id}{Document identifier string. All sessions using the same
 \code{doc_id} share synchronized input state. Default is \code{"default"}.}
@@ -89,8 +89,8 @@ if (interactive()) {
 
 }
 \seealso{
-Other sync: 
-\code{\link{replay_server}()},
-\code{\link{replay_ui}()}
+Other sync:
+\code{\link[=replay_server]{replay_server()}},
+\code{\link[=replay_ui]{replay_ui()}}
 }
 \concept{sync}

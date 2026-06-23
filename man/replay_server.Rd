@@ -58,8 +58,8 @@ if (interactive()) {
 
 }
 \seealso{
-Other sync: 
-\code{\link{replay_ui}()},
-\code{\link{sync_inputs}()}
+Other sync:
+\code{\link[=replay_ui]{replay_ui()}},
+\code{\link[=sync_inputs]{sync_inputs()}}
 }
 \concept{sync}

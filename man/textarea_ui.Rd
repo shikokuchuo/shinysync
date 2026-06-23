@@ -39,7 +39,7 @@ if (interactive()) {
 
 }
 \seealso{
-Other textarea: 
-\code{\link{textarea_server}()}
+Other textarea:
+\code{\link[=textarea_server]{textarea_server()}}
 }
 \concept{textarea}

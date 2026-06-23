@@ -43,7 +43,7 @@ if (interactive()) {
 
 }
 \seealso{
-Other textarea: 
-\code{\link{textarea_ui}()}
+Other textarea:
+\code{\link[=textarea_ui]{textarea_ui()}}
 }
 \concept{textarea}

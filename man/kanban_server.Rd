@@ -50,7 +50,7 @@ if (interactive()) {
 
 }
 \seealso{
-Other kanban: 
-\code{\link{kanban_ui}()}
+Other kanban:
+\code{\link[=kanban_ui]{kanban_ui()}}
 }
 \concept{kanban}

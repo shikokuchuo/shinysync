@@ -37,7 +37,7 @@ if (interactive()) {
 
 }
 \seealso{
-Other kanban: 
-\code{\link{kanban_server}()}
+Other kanban:
+\code{\link[=kanban_server]{kanban_server()}}
 }
 \concept{kanban}
