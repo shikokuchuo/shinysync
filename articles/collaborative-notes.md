@@ -11,6 +11,7 @@ standard textareas are not suitable for real-time collaboration.
 To run these examples, you need the shinysync package installed:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("shikokuchuo/shinysync")
 ```
@@ -34,6 +35,7 @@ The following example uses the
 provides an in-process Automerge sync server:
 
 ``` r
+
 library(shiny)
 library(bslib)
 library(shinysync)
@@ -138,6 +140,7 @@ the cursor position is lost.
 You can demonstrate this problem with the following app:
 
 ``` r
+
 library(shiny)
 library(shinysync)
 

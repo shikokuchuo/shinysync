@@ -33,6 +33,7 @@ module adds a timeline for stepping through the history of changes —
 both are optional.
 
 ``` r
+
 library(shiny)
 library(shinysync)
 
@@ -114,6 +115,7 @@ excluded.
 Use `include` to sync only specific inputs:
 
 ``` r
+
 # Only sync the variable selectors, not the cluster count
 sync_inputs(include = c("xcol", "ycol"))
 ```
@@ -121,6 +123,7 @@ sync_inputs(include = c("xcol", "ycol"))
 Use `exclude` to sync everything except certain inputs:
 
 ``` r
+
 # Sync all inputs except the action button
 sync_inputs(exclude = "reset_btn")
 ```
@@ -137,6 +140,7 @@ The `doc_id` parameter identifies the shared state. All sessions using
 the same `doc_id` see the same inputs:
 
 ``` r
+
 # These sessions share state
 sync_inputs(doc_id = "classroom-demo")
 
@@ -198,6 +202,7 @@ Pass matching values to
 [`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md):
 
 ``` r
+
 replay_ui("timeline", show_messages = FALSE, playback_ms = 500)
 replay_server("timeline", replaying = replaying,
               show_messages = FALSE, playback_ms = 500)
@@ -240,12 +245,12 @@ collaborative documents use share links.
 
 ## When to use sync_inputs() vs other approaches
 
-| Scenario                                  | Recommendation                                                                                                                                              |
-|:------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Shared controls for a visualization       | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)                                                                                |
-| Collaborative text editing                | [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) with sync server                                                                         |
-| Collaborative task tracking               | [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md) / [`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md) |
-| Mix of shared controls and free-form text | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) + [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)           |
+| Scenario | Recommendation |
+|:---|:---|
+| Shared controls for a visualization | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) |
+| Collaborative text editing | [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) with sync server |
+| Collaborative task tracking | [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md) / [`kanban_server()`](http://shikokuchuo.net/shinysync/reference/kanban_server.md) |
+| Mix of shared controls and free-form text | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) + [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) |
 
 [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md)
 is designed for the common case where a group of people want to look at

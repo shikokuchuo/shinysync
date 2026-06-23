@@ -9,17 +9,18 @@ DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shikokuchuo/shin
 ## Installation
 
 ``` r
+
 pak::pak("shikokuchuo/shinysync")
 ```
 
 ## Features
 
-| Component                                                                    | Description                                              | Sync Server  |
-|------------------------------------------------------------------------------|----------------------------------------------------------|--------------|
-| [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)           | CodeMirror 6 code editor with cursor-preserving sync     | Required     |
+| Component | Description | Sync Server |
+|----|----|----|
+| [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md) | CodeMirror 6 code editor with cursor-preserving sync | Required |
 | [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md) | Synchronize any Shiny inputs across sessions with replay | Not required |
-| [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)     | Collaborative kanban board with movable items            | Not required |
-| [`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md) | Basic synchronized textarea                              | Not required |
+| [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md) | Collaborative kanban board with movable items | Not required |
+| [`textarea_ui()`](http://shikokuchuo.net/shinysync/reference/textarea_ui.md) | Basic synchronized textarea | Not required |
 
 The **editor** provides the best experience for collaborative text
 editing, with proper cursor preservation when remote changes arrive.
@@ -44,6 +45,7 @@ remote edits), making it suitable only for simple use cases.
 ### Kanban Board (serverless)
 
 ``` r
+
 library(shiny)
 library(shinysync)
 
@@ -63,6 +65,7 @@ shinyApp(ui, server)
 ### Collaborative Shiny App (serverless)
 
 ``` r
+
 library(shiny)
 library(shinysync)
 
@@ -93,6 +96,7 @@ shinyApp(ui, server)
 ### Editor (with sync server)
 
 ``` r
+
 library(shiny)
 library(shinysync)
 library(autosync)

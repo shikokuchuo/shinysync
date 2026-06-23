@@ -32,6 +32,7 @@ Automerge handles concurrent operations correctly:
 ## Basic example
 
 ``` r
+
 library(shiny)
 library(shinysync)
 
@@ -60,6 +61,7 @@ Open in two browser windows and try moving items between columns.
 ## Complete application
 
 ``` r
+
 library(shiny)
 library(bslib)
 library(shinysync)
@@ -109,6 +111,7 @@ shinyApp(ui, server)
 You can define your own columns:
 
 ``` r
+
 kanban_ui(
   "board",
   columns = c(
@@ -152,6 +155,7 @@ The `doc_id` parameter identifies the collaborative document. All
 sessions using the same `doc_id` synchronize together:
 
 ``` r
+
 # These sync together
 kanban_server("board1", doc_id = "shared-board")
 kanban_server("board2", doc_id = "shared-board")
@@ -167,6 +171,7 @@ returns a reactive data frame with columns `id`, `text`, `done`, and
 `column`:
 
 ``` r
+
 items <- kanban_server("board", doc_id = "my-board")
 
 observe({

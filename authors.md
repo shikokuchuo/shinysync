@@ -14,11 +14,11 @@
 Source:
 [`DESCRIPTION`](https://github.com/shikokuchuo/shinysync/blob/main/DESCRIPTION)
 
-Gao C (2026). *shinysync: Collaborative Shiny Apps with Automerge*. R
+Gao C (2026). *shinysync: Collaborative Shiny Apps with 'Automerge'*. R
 package version 0.0.1.9000, <https://github.com/shikokuchuo/shinysync>.
 
     @Manual{,
-      title = {shinysync: Collaborative Shiny Apps with Automerge},
+      title = {shinysync: Collaborative Shiny Apps with 'Automerge'},
       author = {Charlie Gao},
       year = {2026},
       note = {R package version 0.0.1.9000},

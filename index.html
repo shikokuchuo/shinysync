@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Collaborative Shiny Apps with Automerge • shinysync</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -78,28 +78,28 @@
 <col width="35%">
 <col width="35%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Component</th>
 <th>Description</th>
 <th>Sync Server</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code><a href="reference/editor.html">editor()</a></code></td>
 <td>CodeMirror 6 code editor with cursor-preserving sync</td>
 <td>Required</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code><a href="reference/sync_inputs.html">sync_inputs()</a></code></td>
 <td>Synchronize any Shiny inputs across sessions with replay</td>
 <td>Not required</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code><a href="reference/kanban_ui.html">kanban_ui()</a></code></td>
 <td>Collaborative kanban board with movable items</td>
 <td>Not required</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code><a href="reference/textarea_ui.html">textarea_ui()</a></code></td>
 <td>Basic synchronized textarea</td>
 <td>Not required</td>
@@ -169,7 +169,7 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/shinysync" class="external-link">shinysync</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shikokuchuo.net/autosync/" class="external-link">autosync</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/posit-dev/automerge-r" class="external-link">automerge</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/amsync_server.html" class="external-link">amsync_server</a></span><span class="op">(</span><span class="op">)</span></span>

@@ -1,4 +1,4 @@
-# shinysync: Collaborative Shiny Applications with Automerge
+# shinysync: Collaborative Shiny Apps with 'Automerge'
 
 Real-time collaborative widgets for Shiny applications, built on
 'Automerge' 'CRDT'. Provides a 'CodeMirror' 6 code editor with WebSocket
@@ -22,6 +22,11 @@ Useful links:
 
 **Maintainer**: Charlie Gao <charlie.gao@posit.co>
 ([ORCID](https://orcid.org/0000-0002-0750-061X))
+
+Authors:
+
+- Charlie Gao <charlie.gao@posit.co>
+  ([ORCID](https://orcid.org/0000-0002-0750-061X))
 
 Other contributors:
 
