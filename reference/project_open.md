@@ -75,7 +75,7 @@ following fields and methods:
 - `open(path)`:
 
   Open the file's document over the project connection and return its
-  `sync_doc` handle. Reuses the connection and any already-open
+  `autosync_doc` handle. Reuses the connection and any already-open
   document.
 
 - `refresh()`:
