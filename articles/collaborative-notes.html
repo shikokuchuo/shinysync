@@ -12,7 +12,9 @@
 <link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Collaborative Meeting Notes App">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="collaborative-notes_files/libs/quarto-html/popper.min.js"></script><script src="collaborative-notes_files/libs/quarto-html/tippy.umd.min.js"></script><link href="collaborative-notes_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="collaborative-notes_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Collaborative Meeting Notes App">
 </head>
 <body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
@@ -52,53 +54,36 @@
 
 
   </div>
-</nav><div class="container template-article" id="container">
-
-
-
-
+</nav><div class="container template-quarto" id="container">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Collaborative Meeting Notes App</h1>
-            
-      
-      <small class="dont-index">Source: <a href="https://github.com/shikokuchuo/shinysync/blob/main/vignettes/collaborative-notes.Rmd" class="external-link"><code>vignettes/collaborative-notes.Rmd</code></a></small>
-      <div class="d-none name"><code>collaborative-notes.Rmd</code></div>
+
+
+
+
+      <small class="dont-index">Source: <a href="https://github.com/shikokuchuo/shinysync/blob/main/vignettes/collaborative-notes.qmd" class="external-link"><code>vignettes/collaborative-notes.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<p>This vignette demonstrates how to build a collaborative meeting notes
-application using shinysync’s <code><a href="../reference/editor.html">editor()</a></code> widget with a sync
-server, and explains why simpler approaches using standard textareas are
-not suitable for real-time collaboration.</p>
-<div class="section level2">
-<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+
+
+
+
+
+    <p>This vignette demonstrates how to build a collaborative meeting notes application using shinysync’s <code><a href="../reference/editor.html">editor()</a></code> widget with a sync server, and explains why simpler approaches using standard textareas are not suitable for real-time collaboration.</p>
+<section class="level2"><h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>To run these examples, you need the shinysync package installed:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"shikokuchuo/shinysync"</span><span class="op">)</span></span></code></pre></div>
-<p>Open multiple browser windows or tabs pointing to the same Shiny app
-URL to see real-time collaboration in action.</p>
-</div>
-<div class="section level2">
-<h2 id="collaborative-editor-with-sync-server">Collaborative editor with sync server<a class="anchor" aria-label="anchor" href="#collaborative-editor-with-sync-server"></a>
+<p>To run these examples, you need the shinysync package installed. Open multiple browser windows or tabs pointing to the same Shiny app URL to see real-time collaboration in action.</p>
+</section><section class="level2"><h2 id="collaborative-editor-with-sync-server">Collaborative editor with sync server<a class="anchor" aria-label="anchor" href="#collaborative-editor-with-sync-server"></a>
 </h2>
-<p>The <code><a href="../reference/editor.html">editor()</a></code> widget provides the best collaborative
-editing experience. It uses CodeMirror 6 with the
-<code>automerge-codemirror</code> integration, which applies Automerge
-operations directly to CodeMirror’s document model. This means your
-cursor stays in place when others edit, you get full syntax
-highlighting, and documents can be saved and restored across
-sessions.</p>
-<div class="section level3">
-<h3 id="editor-example-with-autosync">Editor example with autosync<a class="anchor" aria-label="anchor" href="#editor-example-with-autosync"></a>
+<p>The <code><a href="../reference/editor.html">editor()</a></code> widget provides the best collaborative editing experience. It uses CodeMirror 6 with the <code>automerge-codemirror</code> integration, which applies Automerge operations directly to CodeMirror’s document model. This means your cursor stays in place when others edit, you get full syntax highlighting, and documents can be saved and restored across sessions.</p>
+<section class="level3"><h3 id="editor-example-with-autosync">Editor example with autosync<a class="anchor" aria-label="anchor" href="#editor-example-with-autosync"></a>
 </h3>
-<p>The following example uses the <a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a> package,
-which provides an in-process Automerge sync server:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>The following example uses the <a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a> package, which provides an in-process Automerge sync server:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/bslib/" class="external-link">bslib</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/shinysync" class="external-link">shinysync</a></span><span class="op">)</span></span>
@@ -114,7 +99,7 @@ which provides an in-process Automerge sync server:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create and start the sync server (once, at app startup)</span></span>
-<span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu">amsync_server</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/sync_server.html" class="external-link">sync_server</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">sync_server</span><span class="op">$</span><span class="fu">start</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a document for each room with initial content</span></span>
@@ -177,28 +162,16 @@ which provides an in-process Automerge sync server:</p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/onStop.html" class="external-link">onStop</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">sync_server</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
-<hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="why-not-use-a-standard-textarea">Why not use a standard textarea?<a class="anchor" aria-label="anchor" href="#why-not-use-a-standard-textarea"></a>
+<hr></section></section><section class="level2"><h2 id="why-not-use-a-standard-textarea">Why not use a standard textarea?<a class="anchor" aria-label="anchor" href="#why-not-use-a-standard-textarea"></a>
 </h2>
-<p>You might wonder whether a simpler approach using Shiny’s
-<code><a href="https://rdrr.io/pkg/shiny/man/textAreaInput.html" class="external-link">textAreaInput()</a></code> could work for collaborative editing. The
-shinysync package does include <code><a href="../reference/textarea_ui.html">textarea_ui()</a></code> and
-<code><a href="../reference/textarea_server.html">textarea_server()</a></code> functions that synchronize text using
-Automerge without requiring a sync server. However, this approach has a
-fundamental limitation that makes it unsuitable for real-time
-collaboration.</p>
-<div class="section level3">
-<h3 id="the-cursor-position-problem">The cursor position problem<a class="anchor" aria-label="anchor" href="#the-cursor-position-problem"></a>
+<p>You might wonder whether a simpler approach using Shiny’s <code><a href="https://rdrr.io/pkg/shiny/man/textAreaInput.html" class="external-link">textAreaInput()</a></code> could work for collaborative editing. The shinysync package does include <code><a href="../reference/textarea_ui.html">textarea_ui()</a></code> and <code><a href="../reference/textarea_server.html">textarea_server()</a></code> functions that synchronize text using Automerge without requiring a sync server. However, this approach has a fundamental limitation that makes it unsuitable for real-time collaboration.</p>
+<section class="level3"><h3 id="the-cursor-position-problem">The cursor position problem<a class="anchor" aria-label="anchor" href="#the-cursor-position-problem"></a>
 </h3>
-<p>HTML <code>&lt;textarea&gt;</code> elements have no API for granular
-text updates. The only way to update a textarea programmatically is to
-replace its entire <code>.value</code> property. This means that when
-another user’s changes arrive, the cursor position is lost.</p>
+<p>HTML <code>&lt;textarea&gt;</code> elements have no API for granular text updates. The only way to update a textarea programmatically is to replace its entire <code>.value</code> property. This means that when another user’s changes arrive, the cursor position is lost.</p>
 <p>You can demonstrate this problem with the following app:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/shinysync" class="external-link">shinysync</a></span><span class="op">)</span></span>
 <span></span>
@@ -233,41 +206,106 @@ another user’s changes arrive, the cursor position is lost.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
-<p>When you click the button, your cursor jumps to the end of the text.
-In a real collaborative scenario, this would happen every time another
-user makes an edit, making it impossible to type continuously.</p>
 </div>
-<div class="section level3">
-<h3 id="why-codemirror-works">Why CodeMirror works<a class="anchor" aria-label="anchor" href="#why-codemirror-works"></a>
+<p>When you click the button, your cursor jumps to the end of the text. In a real collaborative scenario, this would happen every time another user makes an edit, making it impossible to type continuously.</p>
+</section><section class="level3"><h3 id="why-codemirror-works">Why CodeMirror works<a class="anchor" aria-label="anchor" href="#why-codemirror-works"></a>
 </h3>
-<p>The <code><a href="../reference/editor.html">editor()</a></code> widget uses CodeMirror 6 with the
-<code>automerge-codemirror</code> integration. CodeMirror maintains a
-proper document model that can apply operations incrementally. When a
-remote change arrives, CodeMirror:</p>
-<ol style="list-style-type: decimal">
+<p>The <code><a href="../reference/editor.html">editor()</a></code> widget uses CodeMirror 6 with the <code>automerge-codemirror</code> integration. CodeMirror maintains a proper document model that can apply operations incrementally. When a remote change arrives, CodeMirror:</p>
+<ol type="1">
 <li>Applies the change at the correct position</li>
-<li>Adjusts cursor and selection positions to account for the
-change</li>
+<li>Adjusts cursor and selection positions to account for the change</li>
 <li>Preserves your editing context</li>
 </ol>
-<p>This is why <code><a href="../reference/editor.html">editor()</a></code> with a sync server is the
-recommended approach for collaborative text editing.</p>
-</div>
-<div class="section level3">
-<h3 id="alternatives-for-serverless-collaboration">Alternatives for serverless collaboration<a class="anchor" aria-label="anchor" href="#alternatives-for-serverless-collaboration"></a>
+<p>This is why <code><a href="../reference/editor.html">editor()</a></code> with a sync server is the recommended approach for collaborative text editing.</p>
+</section><section class="level3"><h3 id="alternatives-for-serverless-collaboration">Alternatives for serverless collaboration<a class="anchor" aria-label="anchor" href="#alternatives-for-serverless-collaboration"></a>
 </h3>
-<p>If you need serverless collaboration without the cursor position
-issues, consider using discrete UI components instead of free-form text.
-For example, a collaborative kanban board works well because each action
-(add item, move item, toggle, delete) is atomic - there’s no cursor
-position to preserve. See the “Collaborative Kanban Board” vignette for
-details.</p>
-</div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+<p>If you need serverless collaboration without the cursor position issues, consider using discrete UI components instead of free-form text. For example, a collaborative kanban board works well because each action (add item, move item, toggle, delete) is atomic - there’s no cursor position to preserve. See the “Collaborative Kanban Board” vignette for details.</p>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
+    }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
    </div>

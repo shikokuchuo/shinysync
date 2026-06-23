@@ -104,12 +104,28 @@
 <td>Basic synchronized textarea</td>
 <td>Not required</td>
 </tr>
+<tr>
+<td><code><a href="reference/project_open.html">project_open()</a></code></td>
+<td>Browse a project document’s file tree over a sync server</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><code><a href="reference/project_app.html">project_app()</a></code></td>
+<td>Single-window app to connect, browse, and edit project files</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><code><a href="reference/project_edit.html">project_edit()</a></code></td>
+<td>Live-edit a synced document’s text in a <code>bslib</code> code editor</td>
+<td>Required</td>
+</tr>
 </tbody>
 </table>
 <p>The <strong>editor</strong> provides the best experience for collaborative text editing, with proper cursor preservation when remote changes arrive.</p>
 <p><strong>sync_inputs</strong> makes an entire Shiny app collaborative with a single function call. All scalar inputs (sliders, dropdowns, checkboxes, text inputs) are synchronized automatically. Pair with <code><a href="reference/replay_ui.html">replay_ui()</a></code> / <code><a href="reference/replay_server.html">replay_server()</a></code> to step through the full history of input changes.</p>
 <p>The <strong>kanban</strong> module works well without a sync server because its actions (add, toggle, delete, move) are discrete - there’s no cursor position to preserve.</p>
 <p>The <strong>textarea</strong> syncs correctly but has UX limitations (cursor jumps on remote edits), making it suitable only for simple use cases.</p>
+<p>The <strong>project</strong> family browses and edits a <em>project document</em> served by an <a href="https://github.com/shikokuchuo/autosync" class="external-link">autosync</a> (or other automerge-repo) sync server, with R owning the WebSocket sync rather than the browser. A project is an Automerge document with a <code>files</code> map of paths to per-file document IDs. <code><a href="reference/project_open.html">project_open()</a></code> opens a persistent connection and exposes the file tree, <code><a href="reference/project_edit.html">project_edit()</a></code> live-edits one file’s text in a <code><a href="https://rstudio.github.io/bslib/reference/input_code_editor.html" class="external-link">bslib::input_code_editor()</a></code>, and <code><a href="reference/project_app.html">project_app()</a></code> wraps both in a single-window connect/browse/edit Shiny gadget.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -172,7 +188,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shikokuchuo.net/autosync/" class="external-link">autosync</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/posit-dev/automerge-r" class="external-link">automerge</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu">amsync_server</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">sync_server</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/sync_server.html" class="external-link">sync_server</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">sync_server</span><span class="op">$</span><span class="fu">start</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">doc_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://shikokuchuo.net/autosync/reference/create_document.html" class="external-link">create_document</a></span><span class="op">(</span><span class="va">sync_server</span><span class="op">)</span></span>
@@ -189,6 +205,22 @@
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/onStop.html" class="external-link">onStop</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">sync_server</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
 <p>Open either app in multiple browser windows for real-time collaboration.</p>
+</div>
+<div class="section level3">
+<h3 id="project-browser-r-owned-sync">Project Browser (R-owned sync)<a class="anchor" aria-label="anchor" href="#project-browser-r-owned-sync"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/shinysync" class="external-link">shinysync</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Single-window app: connect, browse the file tree, and edit files live</span></span>
+<span><span class="fu"><a href="reference/project_app.html">project_app</a></span><span class="op">(</span><span class="st">"wss://sync.automerge.org"</span>, <span class="va">proj_id</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or drive the connection from R directly</span></span>
+<span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/project_open.html">project_open</a></span><span class="op">(</span><span class="st">"wss://sync.automerge.org"</span>, <span class="va">proj_id</span><span class="op">)</span></span>
+<span><span class="va">proj</span>                                          <span class="co"># prints the file tree</span></span>
+<span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="st">"/index.qmd"</span><span class="op">)</span>        <span class="co"># open a file over the connection</span></span>
+<span><span class="fu"><a href="reference/project_edit.html">project_edit</a></span><span class="op">(</span><span class="va">doc</span>, at <span class="op">=</span> <span class="st">"text"</span>, ext <span class="op">=</span> <span class="st">".qmd"</span><span class="op">)</span>  <span class="co"># edit live in a code editor</span></span>
+<span><span class="va">proj</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span>                                  <span class="co"># disconnect when finished</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -207,9 +239,9 @@
 <h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
 </h2>
 <p>To rebuild the bundled JavaScript widget:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="bu">cd</span> inst/build</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="related-packages">Related Packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>

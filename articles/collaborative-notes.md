@@ -8,16 +8,9 @@ standard textareas are not suitable for real-time collaboration.
 
 ## Setup
 
-To run these examples, you need the shinysync package installed:
-
-``` r
-
-# install.packages("pak")
-pak::pak("shikokuchuo/shinysync")
-```
-
-Open multiple browser windows or tabs pointing to the same Shiny app URL
-to see real-time collaboration in action.
+To run these examples, you need the shinysync package installed. Open
+multiple browser windows or tabs pointing to the same Shiny app URL to
+see real-time collaboration in action.
 
 ## Collaborative editor with sync server
 
@@ -51,7 +44,7 @@ room_templates <- list(
 )
 
 # Create and start the sync server (once, at app startup)
-sync_server <- amsync_server()
+sync_server <- sync_server()
 sync_server$start()
 
 # Create a document for each room with initial content

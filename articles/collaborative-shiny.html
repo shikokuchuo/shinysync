@@ -12,7 +12,9 @@
 <link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Collaborative Shiny Apps">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="collaborative-shiny_files/libs/quarto-html/popper.min.js"></script><script src="collaborative-shiny_files/libs/quarto-html/tippy.umd.min.js"></script><link href="collaborative-shiny_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="collaborative-shiny_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Collaborative Shiny Apps">
 </head>
 <body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
@@ -52,49 +54,34 @@
 
 
   </div>
-</nav><div class="container template-article" id="container">
-
-
-
-
+</nav><div class="container template-quarto" id="container">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Collaborative Shiny Apps</h1>
-            
-      
-      <small class="dont-index">Source: <a href="https://github.com/shikokuchuo/shinysync/blob/main/vignettes/collaborative-shiny.Rmd" class="external-link"><code>vignettes/collaborative-shiny.Rmd</code></a></small>
-      <div class="d-none name"><code>collaborative-shiny.Rmd</code></div>
+
+
+
+
+      <small class="dont-index">Source: <a href="https://github.com/shikokuchuo/shinysync/blob/main/vignettes/collaborative-shiny.qmd" class="external-link"><code>vignettes/collaborative-shiny.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<p>This vignette demonstrates how to make an entire Shiny app
-collaborative using <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code>. Every connected user
-shares the same input state and sees the same output — no sync server
-required.</p>
-<div class="section level2">
-<h2 id="the-idea">The idea<a class="anchor" aria-label="anchor" href="#the-idea"></a>
+
+
+
+
+
+    <p>This vignette demonstrates how to make an entire Shiny app collaborative using <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code>. Every connected user shares the same input state and sees the same output — no sync server required.</p>
+<section class="level2"><h2 id="the-idea">The idea<a class="anchor" aria-label="anchor" href="#the-idea"></a>
 </h2>
-<p>A standard Shiny app gives each user an independent session. User A’s
-dropdown has no connection to User B’s dropdown.
-<code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> changes this by storing every input value in
-a shared Automerge document. When one user changes a control, the new
-value is propagated to all other sessions automatically.</p>
-<p>This works well for any app where the inputs are standard Shiny
-widgets (sliders, dropdowns, numeric inputs, checkboxes, radio buttons,
-text inputs) and the goal is a shared view of the same output.</p>
-</div>
-<div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<p>A standard Shiny app gives each user an independent session. User A’s dropdown has no connection to User B’s dropdown. <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> changes this by storing every input value in a shared Automerge document. When one user changes a control, the new value is propagated to all other sessions automatically.</p>
+<p>This works well for any app where the inputs are standard Shiny widgets (sliders, dropdowns, numeric inputs, checkboxes, radio buttons, text inputs) and the goal is a shared view of the same output.</p>
+</section><section class="level2"><h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>The following app performs k-means clustering on the
-<code>iris</code> dataset. Adding <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> to the
-server makes it collaborative. The <code>path</code> argument enables
-persistence across restarts, and the <code><a href="../reference/replay_ui.html">replay_ui()</a></code> /
-<code><a href="../reference/replay_server.html">replay_server()</a></code> module adds a timeline for stepping through
-the history of changes — both are optional.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>The following app performs k-means clustering on the <code>iris</code> dataset. Adding <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> to the server makes it collaborative. The <code>path</code> argument enables persistence across restarts, and the <code><a href="../reference/replay_ui.html">replay_ui()</a></code> / <code><a href="../reference/replay_server.html">replay_server()</a></code> module adds a timeline for stepping through the history of changes — both are optional.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/shikokuchuo/shinysync" class="external-link">shinysync</a></span><span class="op">)</span></span>
 <span></span>
@@ -129,230 +116,214 @@ the history of changes — both are optional.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">ui</span>, <span class="va">server</span><span class="op">)</span></span></code></pre></div>
-<p>Open two browser tabs pointing to the app. Change the X variable in
-one tab — the other tab’s dropdown updates and the plot redraws. Every
-control is synchronized: switch to petal dimensions, increase the
-cluster count, and all sessions follow.</p>
 </div>
-<div class="section level2">
-<h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+<p>Open two browser tabs pointing to the app. Change the X variable in one tab — the other tab’s dropdown updates and the plot redraws. Every control is synchronized: switch to petal dimensions, increase the cluster count, and all sessions follow.</p>
+</section><section class="level2"><h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
 </h2>
-<p><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> sets up three things in the current
-session:</p>
-<ol style="list-style-type: decimal">
-<li><p><strong>A shared Automerge document</strong> — The entire input
-state is stored as a flat map:
-<code>{"xcol": "Sepal.Length", "ycol": "Sepal.Width", "clusters": 3}</code>.
-A master copy lives in a package-level environment shared by all
-sessions in the same R process. Each session maintains a local copy that
-syncs incrementally with the master using Automerge’s sync
-protocol.</p></li>
-<li><p><strong>An observer for local changes</strong> — Watches
-<code>reactiveValuesToList(input)</code> for changes. When a user
-changes a dropdown, the new value is written to the local Automerge
-document and synced to the master. A reactive version counter notifies
-other sessions.</p></li>
-<li><p><strong>A handler for remote changes</strong> — When the master
-version bumps (another session changed something), the local document
-syncs, reads the new values, and pushes them to the browser. A
-JavaScript message handler calls Shiny’s input binding
-<code>receiveMessage()</code> method to update each widget — the same
-mechanism that <code><a href="https://rdrr.io/pkg/shiny/man/updateSliderInput.html" class="external-link">updateSliderInput()</a></code> etc. use
-internally.</p></li>
+<p><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> sets up three things in the current session:</p>
+<ol type="1">
+<li><p><strong>A shared Automerge document</strong> — The entire input state is stored as a flat map: <code>{"xcol": "Sepal.Length", "ycol": "Sepal.Width", "clusters": 3}</code>. A master copy lives in a package-level environment shared by all sessions in the same R process. Each session maintains a local copy that syncs incrementally with the master using Automerge’s sync protocol.</p></li>
+<li><p><strong>An observer for local changes</strong> — Watches <code>reactiveValuesToList(input)</code> for changes. When a user changes a dropdown, the new value is written to the local Automerge document and synced to the master. A reactive version counter notifies other sessions.</p></li>
+<li><p><strong>A handler for remote changes</strong> — When the master version bumps (another session changed something), the local document syncs, reads the new values, and pushes them to the browser. A JavaScript message handler calls Shiny’s input binding <code>receiveMessage()</code> method to update each widget — the same mechanism that <code><a href="https://rdrr.io/pkg/shiny/man/updateSliderInput.html" class="external-link">updateSliderInput()</a></code> etc. use internally.</p></li>
 </ol>
-<p>Feedback loops are suppressed by tracking known values: when a remote
-update sets an input to a new value, the resulting echo from the browser
-is recognised and skipped.</p>
-</div>
-<div class="section level2">
-<h2 id="controlling-which-inputs-sync">Controlling which inputs sync<a class="anchor" aria-label="anchor" href="#controlling-which-inputs-sync"></a>
+<p>Feedback loops are suppressed by tracking known values: when a remote update sets an input to a new value, the resulting echo from the browser is recognised and skipped.</p>
+</section><section class="level2"><h2 id="controlling-which-inputs-sync">Controlling which inputs sync<a class="anchor" aria-label="anchor" href="#controlling-which-inputs-sync"></a>
 </h2>
-<p>By default, all scalar inputs (string, numeric, logical) are
-synchronized. Inputs starting with <code>.</code> (Shiny internals) are
-always excluded.</p>
+<p>By default, all scalar inputs (string, numeric, logical) are synchronized. Inputs starting with <code>.</code> (Shiny internals) are always excluded.</p>
 <p>Use <code>include</code> to sync only specific inputs:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Only sync the variable selectors, not the cluster count</span></span>
 <span><span class="fu"><a href="../reference/sync_inputs.html">sync_inputs</a></span><span class="op">(</span>include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xcol"</span>, <span class="st">"ycol"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Use <code>exclude</code> to sync everything except certain
-inputs:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+</div>
+<p>Use <code>exclude</code> to sync everything except certain inputs:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Sync all inputs except the action button</span></span>
 <span><span class="fu"><a href="../reference/sync_inputs.html">sync_inputs</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="st">"reset_btn"</span><span class="op">)</span></span></code></pre></div>
-<p>Action buttons (whose values are integer click counters) are not
-scalar-typed in the way <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> checks, so they are
-generally excluded automatically. If you find an input being synced that
-shouldn’t be, use <code>exclude</code>.</p>
 </div>
-<div class="section level2">
-<h2 id="document-ids">Document IDs<a class="anchor" aria-label="anchor" href="#document-ids"></a>
+<p>Action buttons (whose values are integer click counters) are not scalar-typed in the way <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> checks, so they are generally excluded automatically. If you find an input being synced that shouldn’t be, use <code>exclude</code>.</p>
+</section><section class="level2"><h2 id="document-ids">Document IDs<a class="anchor" aria-label="anchor" href="#document-ids"></a>
 </h2>
-<p>The <code>doc_id</code> parameter identifies the shared state. All
-sessions using the same <code>doc_id</code> see the same inputs:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>The <code>doc_id</code> parameter identifies the shared state. All sessions using the same <code>doc_id</code> see the same inputs:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># These sessions share state</span></span>
 <span><span class="fu"><a href="../reference/sync_inputs.html">sync_inputs</a></span><span class="op">(</span>doc_id <span class="op">=</span> <span class="st">"classroom-demo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># This session is independent</span></span>
 <span><span class="fu"><a href="../reference/sync_inputs.html">sync_inputs</a></span><span class="op">(</span>doc_id <span class="op">=</span> <span class="st">"instructor-view"</span><span class="op">)</span></span></code></pre></div>
-<p>This lets a single app deployment serve multiple groups
-simultaneously, each with its own synchronized state.</p>
 </div>
-<div class="section level2">
-<h2 id="persistence">Persistence<a class="anchor" aria-label="anchor" href="#persistence"></a>
+<p>This lets a single app deployment serve multiple groups simultaneously, each with its own synchronized state.</p>
+</section><section class="level2"><h2 id="persistence">Persistence<a class="anchor" aria-label="anchor" href="#persistence"></a>
 </h2>
-<p>By default, the shared state lives in memory and is lost when R
-restarts. The <code>path</code> argument (shown in the example as
-<code>sync_inputs(path = "explorer.automerge")</code>) saves the
-Automerge document to disk after every change and reloads it on the next
-startup. Users reconnect and pick up exactly where they left off.</p>
-<p>The Automerge document is self-contained — it holds every input value
-in a single binary blob via <code><a href="https://posit-dev.github.io/automerge-r/reference/am_save.html" class="external-link">am_save()</a></code> /
-<code><a href="https://posit-dev.github.io/automerge-r/reference/am_load.html" class="external-link">am_load()</a></code>.</p>
-</div>
-<div class="section level2">
-<h2 id="replay">Replay<a class="anchor" aria-label="anchor" href="#replay"></a>
+<p>By default, the shared state lives in memory and is lost when R restarts. The <code>path</code> argument (shown in the example as <code>sync_inputs(path = "explorer.automerge")</code>) saves the Automerge document to disk after every change and reloads it on the next startup. Users reconnect and pick up exactly where they left off.</p>
+<p>The Automerge document is self-contained — it holds every input value in a single binary blob via <code><a href="https://posit-dev.github.io/automerge-r/reference/am_save.html" class="external-link">am_save()</a></code> / <code><a href="https://posit-dev.github.io/automerge-r/reference/am_load.html" class="external-link">am_load()</a></code>.</p>
+</section><section class="level2"><h2 id="replay">Replay<a class="anchor" aria-label="anchor" href="#replay"></a>
 </h2>
-<p>Every input change is recorded as an Automerge commit with a
-descriptive message and timestamp. The replay module (shown in the
-example as <code>replay_ui("timeline")</code> /
-<code>replay_server("timeline", ...)</code>) lets you step through this
-history, reconstructing the exact app state at each point.</p>
-<p>The timeline slider shows one position per meaningful change (init
-commits from new sessions are filtered out). Dragging the slider
-reconstructs the document at that step and pushes the values to all
-widgets — the plot redraws to match. Commit messages narrate the
-exploration: <code>"xcol: Petal.Length"</code>,
-<code>"clusters: 5"</code>. While the slider is not at the latest step,
-live syncing is paused — moving to the end resumes normal operation.</p>
-<p>The step buttons (first, previous, next, last) navigate one commit at
-a time. The play button animates through the history automatically.
-Pressing play on a session where the team explored sepal dimensions with
-3 clusters, then switched to petal dimensions and increased to 5
-clusters, replays the entire analytical path as a narrated sequence.</p>
-<div class="section level3">
-<h3 id="customisation">Customisation<a class="anchor" aria-label="anchor" href="#customisation"></a>
+<p>Every input change is recorded as an Automerge commit with a descriptive message and timestamp. The replay module (shown in the example as <code>replay_ui("timeline")</code> / <code>replay_server("timeline", ...)</code>) lets you step through this history, reconstructing the exact app state at each point.</p>
+<p>The timeline slider shows one position per meaningful change (init commits from new sessions are filtered out). Dragging the slider reconstructs the document at that step and pushes the values to all widgets — the plot redraws to match. Commit messages narrate the exploration: <code>"xcol: Petal.Length"</code>, <code>"clusters: 5"</code>. While the slider is not at the latest step, live syncing is paused — moving to the end resumes normal operation.</p>
+<p>The step buttons (first, previous, next, last) navigate one commit at a time. The play button animates through the history automatically. Pressing play on a session where the team explored sepal dimensions with 3 clusters, then switched to petal dimensions and increased to 5 clusters, replays the entire analytical path as a narrated sequence.</p>
+<section class="level3"><h3 id="customisation">Customisation<a class="anchor" aria-label="anchor" href="#customisation"></a>
 </h3>
 <p><code><a href="../reference/replay_ui.html">replay_ui()</a></code> accepts two styling parameters:</p>
 <ul>
 <li>
-<code>show_messages</code> — Display the commit message for each
-step (default <code>TRUE</code>). Messages describe what changed,
-e.g. <code>"xcol: Petal.Length"</code> or
-<code>"clusters: 5"</code>.</li>
+<code>show_messages</code> — Display the commit message for each step (default <code>TRUE</code>). Messages describe what changed, e.g. <code>"xcol: Petal.Length"</code> or <code>"clusters: 5"</code>.</li>
 <li>
-<code>playback_ms</code> — Milliseconds between steps during
-animated playback (default <code>1000</code>).</li>
+<code>playback_ms</code> — Milliseconds between steps during animated playback (default <code>1000</code>).</li>
 </ul>
 <p>Pass matching values to <code><a href="../reference/replay_server.html">replay_server()</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/replay_ui.html">replay_ui</a></span><span class="op">(</span><span class="st">"timeline"</span>, show_messages <span class="op">=</span> <span class="cn">FALSE</span>, playback_ms <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/replay_server.html">replay_server</a></span><span class="op">(</span><span class="st">"timeline"</span>, replaying <span class="op">=</span> <span class="va">replaying</span>,</span>
 <span>              show_messages <span class="op">=</span> <span class="cn">FALSE</span>, playback_ms <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="use-cases">Use cases<a class="anchor" aria-label="anchor" href="#use-cases"></a>
+</section></section><section class="level2"><h2 id="use-cases">Use cases<a class="anchor" aria-label="anchor" href="#use-cases"></a>
 </h2>
-<div class="section level3">
-<h3 id="shared-dashboard-driving">Shared dashboard driving<a class="anchor" aria-label="anchor" href="#shared-dashboard-driving"></a>
+<section class="level3"><h3 id="shared-dashboard-driving">Shared dashboard driving<a class="anchor" aria-label="anchor" href="#shared-dashboard-driving"></a>
 </h3>
-<p>The primary use case. A team opens the same app during a meeting, and
-anyone can drive the controls. Everyone sees the same plot update in
-real time — useful for group analysis sessions, classroom
-demonstrations, and pair exploration.</p>
-</div>
-<div class="section level3">
-<h3 id="persistent-analysis-state">Persistent analysis state<a class="anchor" aria-label="anchor" href="#persistent-analysis-state"></a>
+<p>The primary use case. A team opens the same app during a meeting, and anyone can drive the controls. Everyone sees the same plot update in real time — useful for group analysis sessions, classroom demonstrations, and pair exploration.</p>
+</section><section class="level3"><h3 id="persistent-analysis-state">Persistent analysis state<a class="anchor" aria-label="anchor" href="#persistent-analysis-state"></a>
 </h3>
-<p>With <code>path</code>, a solo analyst can close and reopen the app
-without losing their variable selections and parameter settings.</p>
-</div>
-<div class="section level3">
-<h3 id="audit-trail-and-provenance">Audit trail and provenance<a class="anchor" aria-label="anchor" href="#audit-trail-and-provenance"></a>
+<p>With <code>path</code>, a solo analyst can close and reopen the app without losing their variable selections and parameter settings.</p>
+</section><section class="level3"><h3 id="audit-trail-and-provenance">Audit trail and provenance<a class="anchor" aria-label="anchor" href="#audit-trail-and-provenance"></a>
 </h3>
-<p>Every input change is a timestamped commit in the Automerge document
-history. For reproducible research or regulated environments, this
-provides a complete record of how the analysis was configured at every
-point. Combined with the replay module, the full sequence of analyst
-decisions is browsable after the fact.</p>
-</div>
-<div class="section level3">
-<h3 id="training-and-onboarding">Training and onboarding<a class="anchor" aria-label="anchor" href="#training-and-onboarding"></a>
+<p>Every input change is a timestamped commit in the Automerge document history. For reproducible research or regulated environments, this provides a complete record of how the analysis was configured at every point. Combined with the replay module, the full sequence of analyst decisions is browsable after the fact.</p>
+</section><section class="level3"><h3 id="training-and-onboarding">Training and onboarding<a class="anchor" aria-label="anchor" href="#training-and-onboarding"></a>
 </h3>
-<p>An instructor configures a dashboard, stepping through a series of
-analytical choices. Later, a student uses the replay timeline to walk
-through the instructor’s exploration step by step. The commit messages
-narrate each decision, and the outputs update to match.</p>
-</div>
-<div class="section level3">
-<h3 id="multiple-independent-rooms">Multiple independent rooms<a class="anchor" aria-label="anchor" href="#multiple-independent-rooms"></a>
+<p>An instructor configures a dashboard, stepping through a series of analytical choices. Later, a student uses the replay timeline to walk through the instructor’s exploration step by step. The commit messages narrate each decision, and the outputs update to match.</p>
+</section><section class="level3"><h3 id="multiple-independent-rooms">Multiple independent rooms<a class="anchor" aria-label="anchor" href="#multiple-independent-rooms"></a>
 </h3>
-<p>Using <code>doc_id</code>, a single app deployment can serve multiple
-groups simultaneously — each with its own synchronized state, similar to
-how collaborative documents use share links.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="when-to-use-sync_inputs-vs-other-approaches">When to use sync_inputs() vs other approaches<a class="anchor" aria-label="anchor" href="#when-to-use-sync_inputs-vs-other-approaches"></a>
+<p>Using <code>doc_id</code>, a single app deployment can serve multiple groups simultaneously — each with its own synchronized state, similar to how collaborative documents use share links.</p>
+</section></section><section class="level2"><h2 id="when-to-use-sync_inputs-vs-other-approaches">When to use sync_inputs() vs other approaches<a class="anchor" aria-label="anchor" href="#when-to-use-sync_inputs-vs-other-approaches"></a>
 </h2>
-<table class="table">
+<table class="table caption-top">
 <colgroup>
-<col width="38%">
-<col width="61%">
+<col style="width: 38%">
+<col style="width: 61%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Scenario</th>
-<th align="left">Recommendation</th>
+<th style="text-align: left;">Scenario</th>
+<th style="text-align: left;">Recommendation</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">Shared controls for a visualization</td>
-<td align="left"><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code></td>
+<td style="text-align: left;">Shared controls for a visualization</td>
+<td style="text-align: left;"><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code></td>
 </tr>
 <tr class="even">
-<td align="left">Collaborative text editing</td>
-<td align="left">
+<td style="text-align: left;">Collaborative text editing</td>
+<td style="text-align: left;">
 <code><a href="../reference/editor.html">editor()</a></code> with sync server</td>
 </tr>
 <tr class="odd">
-<td align="left">Collaborative task tracking</td>
-<td align="left">
-<code><a href="../reference/kanban_ui.html">kanban_ui()</a></code> /
-<code><a href="../reference/kanban_server.html">kanban_server()</a></code>
+<td style="text-align: left;">Collaborative task tracking</td>
+<td style="text-align: left;">
+<code><a href="../reference/kanban_ui.html">kanban_ui()</a></code> / <code><a href="../reference/kanban_server.html">kanban_server()</a></code>
 </td>
 </tr>
 <tr class="even">
-<td align="left">Mix of shared controls and free-form text</td>
-<td align="left">
+<td style="text-align: left;">Mix of shared controls and free-form text</td>
+<td style="text-align: left;">
 <code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> + <code><a href="../reference/editor.html">editor()</a></code>
 </td>
 </tr>
 </tbody>
 </table>
-<p><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> is designed for the common case where a
-group of people want to look at the same dashboard and have anyone be
-able to drive the controls. It treats each input as an atomic value with
-last-write-wins semantics, which is appropriate for controls like
-dropdowns and numeric inputs where “merging” two values is not
-meaningful.</p>
-</div>
-<div class="section level2">
-<h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
+<p><code><a href="../reference/sync_inputs.html">sync_inputs()</a></code> is designed for the common case where a group of people want to look at the same dashboard and have anyone be able to drive the controls. It treats each input as an atomic value with last-write-wins semantics, which is appropriate for controls like dropdowns and numeric inputs where “merging” two values is not meaningful.</p>
+</section><section class="level2"><h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
 </h2>
 <ul>
-<li><p><strong>Single R process only</strong> — The shared state lives
-in memory and we do not use an external sync server.</p></li>
-<li><p><strong>Scalar values only</strong> — Complex inputs like file
-uploads, data table selections, and plot brush events are not
-synchronized. Only length-1 character, numeric, and logical values are
-synced.</p></li>
-</ul>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+<li><p><strong>Single R process only</strong> — The shared state lives in memory and we do not use an external sync server.</p></li>
+<li><p><strong>Scalar values only</strong> — Complex inputs like file uploads, data table selections, and plot brush events are not synchronized. Only length-1 character, numeric, and logical values are synced.</p></li>
+</ul></section><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
+    }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
    </div>
