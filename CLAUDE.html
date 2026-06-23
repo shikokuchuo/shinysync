@@ -43,8 +43,14 @@
 <p>This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.</p>
 <div class="section level2">
 <h2 id="package-overview">Package Overview<a class="anchor" aria-label="anchor" href="#package-overview"></a></h2>
-<p>shinysync is an R package providing a real-time collaborative code editor widget built on CodeMirror 6 and Automerge CRDT. It connects via WebSocket to automerge-repo compatible sync servers for multi-user editing with automatic conflict resolution.</p>
-</div>
+<p>shinysync is an R package of collaborative Shiny components built on Automerge CRDT. It spans three sync architectures:</p>
+<ul><li>
+<strong>Browser-owned sync</strong> — the <code><a href="reference/editor.html">editor()</a></code> htmlwidget (CodeMirror 6 + JS <code>@automerge/automerge-repo</code>/<code>automerge-codemirror</code>) connects the browser directly to a sync server.</li>
+<li>
+<strong>Server-free in-process sync</strong> — <code><a href="reference/sync_inputs.html">sync_inputs()</a></code>, <code>textarea_*</code>, <code>kanban_*</code>, <code>replay_*</code> keep a per-<code>doc_id</code> master Automerge document in R and sync each Shiny session to it (no external sync server).</li>
+<li>
+<strong>R-owned WebSocket sync</strong> — the <code>project_*</code> family (<code><a href="reference/project_open.html">project_open()</a></code>, <code><a href="reference/project_app.html">project_app()</a></code>, <code><a href="reference/project_edit.html">project_edit()</a></code>) browses/edits a project document served by an <code>autosync</code> sync server, with R owning the sync via <code><a href="http://shikokuchuo.net/autosync/reference/sync_client.html" class="external-link">autosync::sync_client()</a></code> and a <code>bslib</code> editor in the browser. Moved here from autosync.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="development-commands">Development Commands<a class="anchor" aria-label="anchor" href="#development-commands"></a></h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Run R CMD check</span></span>
@@ -67,9 +73,11 @@
 <div class="section level3">
 <h3 id="r-layer">R Layer<a class="anchor" aria-label="anchor" href="#r-layer"></a></h3>
 <ul><li>
-<code>R/editor.R</code> - Main widget functions: <code><a href="reference/editor.html">editor()</a></code>, <code><a href="reference/editor-shiny.html">editor_output()</a></code>, <code>render_editor()</code>
-</li>
-<li>Uses htmlwidgets to bridge R and JavaScript</li>
+<code>R/editor.R</code> - htmlwidget functions: <code><a href="reference/editor.html">editor()</a></code>, <code><a href="reference/editor-shiny.html">editor_output()</a></code>, <code><a href="reference/editor-shiny.html">editor_render()</a></code> (bridges R and JS via htmlwidgets)</li>
+<li>
+<code>R/sync.R</code>, <code>R/textarea.R</code>, <code>R/kanban.R</code>, <code>R/replay.R</code> - server-free in-process collaborative modules</li>
+<li>
+<code>R/project.R</code>, <code>R/app.R</code>, <code>R/edit.R</code> - the <code>project_*</code> family (server-backed project browser/editor over <code>autosync</code>); <code>R/utils.R</code> holds their small helpers</li>
 </ul></div>
 <div class="section level3">
 <h3 id="javascript-widget">JavaScript Widget<a class="anchor" aria-label="anchor" href="#javascript-widget"></a></h3>
@@ -82,7 +90,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="key-dependencies">Key Dependencies<a class="anchor" aria-label="anchor" href="#key-dependencies"></a></h3>
-<ul><li>R: htmlwidgets (required), automerge/autosync/shiny (suggested)</li>
+<ul><li>R Imports: automerge, autosync, bslib, htmlwidgets, later, shiny, tools</li>
 <li>JS: @automerge/automerge-repo, @automerge/automerge-codemirror, codemirror</li>
 </ul></div>
 </div>

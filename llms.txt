@@ -161,6 +161,12 @@ npm run build
   : Collaborative kanban board server
 - [`kanban_ui()`](http://shikokuchuo.net/shinysync/reference/kanban_ui.md)
   : Collaborative kanban board UI
+- [`project_app()`](http://shikokuchuo.net/shinysync/reference/project_app.md)
+  : Launch the project browser app
+- [`project_edit()`](http://shikokuchuo.net/shinysync/reference/project_edit.md)
+  : Edit a synced document live in a Shiny code editor
+- [`project_open()`](http://shikokuchuo.net/shinysync/reference/project_open.md)
+  : Open files from a project document
 - [`replay_server()`](http://shikokuchuo.net/shinysync/reference/replay_server.md)
   : Replay timeline server
 - [`replay_ui()`](http://shikokuchuo.net/shinysync/reference/replay_ui.md)

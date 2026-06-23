@@ -5,10 +5,27 @@ with code in this repository.
 
 ## Package Overview
 
-shinysync is an R package providing a real-time collaborative code
-editor widget built on CodeMirror 6 and Automerge CRDT. It connects via
-WebSocket to automerge-repo compatible sync servers for multi-user
-editing with automatic conflict resolution.
+shinysync is an R package of collaborative Shiny components built on
+Automerge CRDT. It spans three sync architectures:
+
+- **Browser-owned sync** — the
+  [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md)
+  htmlwidget (CodeMirror 6 + JS
+  `@automerge/automerge-repo`/`automerge-codemirror`) connects the
+  browser directly to a sync server.
+- **Server-free in-process sync** —
+  [`sync_inputs()`](http://shikokuchuo.net/shinysync/reference/sync_inputs.md),
+  `textarea_*`, `kanban_*`, `replay_*` keep a per-`doc_id` master
+  Automerge document in R and sync each Shiny session to it (no external
+  sync server).
+- **R-owned WebSocket sync** — the `project_*` family
+  ([`project_open()`](http://shikokuchuo.net/shinysync/reference/project_open.md),
+  [`project_app()`](http://shikokuchuo.net/shinysync/reference/project_app.md),
+  [`project_edit()`](http://shikokuchuo.net/shinysync/reference/project_edit.md))
+  browses/edits a project document served by an `autosync` sync server,
+  with R owning the sync via
+  [`autosync::sync_client()`](http://shikokuchuo.net/autosync/reference/sync_client.md)
+  and a `bslib` editor in the browser. Moved here from autosync.
 
 ## Development Commands
 
@@ -33,11 +50,16 @@ cd inst/build && npm install && npm run build
 
 ### R Layer
 
-- `R/editor.R` - Main widget functions:
+- `R/editor.R` - htmlwidget functions:
   [`editor()`](http://shikokuchuo.net/shinysync/reference/editor.md),
   [`editor_output()`](http://shikokuchuo.net/shinysync/reference/editor-shiny.md),
-  `render_editor()`
-- Uses htmlwidgets to bridge R and JavaScript
+  [`editor_render()`](http://shikokuchuo.net/shinysync/reference/editor-shiny.md)
+  (bridges R and JS via htmlwidgets)
+- `R/sync.R`, `R/textarea.R`, `R/kanban.R`, `R/replay.R` - server-free
+  in-process collaborative modules
+- `R/project.R`, `R/app.R`, `R/edit.R` - the `project_*` family
+  (server-backed project browser/editor over `autosync`); `R/utils.R`
+  holds their small helpers
 
 ### JavaScript Widget
 
@@ -50,7 +72,8 @@ cd inst/build && npm install && npm run build
 
 ### Key Dependencies
 
-- R: htmlwidgets (required), automerge/autosync/shiny (suggested)
+- R Imports: automerge, autosync, bslib, htmlwidgets, later, shiny,
+  tools
 - JS: @automerge/automerge-repo, @automerge/automerge-codemirror,
   codemirror
 
